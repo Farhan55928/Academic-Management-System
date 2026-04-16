@@ -91,10 +91,12 @@ export default function CourseDetailPage() {
           onClick={() => handleTabChange('attendance')}>
           📋 Attendance
         </button>
-        <button className={`tab-btn ${activeTab === 'marks' ? 'active' : ''}`}
-          onClick={() => handleTabChange('marks')}>
-          📊 Marks
-        </button>
+        {course.type === 'theory' && (
+          <button className={`tab-btn ${activeTab === 'marks' ? 'active' : ''}`}
+            onClick={() => handleTabChange('marks')}>
+            📊 Marks
+          </button>
+        )}
         {course.type === 'lab' && (
           <button className={`tab-btn ${activeTab === 'labs' ? 'active' : ''}`}
             onClick={() => handleTabChange('labs')}>
@@ -106,7 +108,7 @@ export default function CourseDetailPage() {
       {/* Tab Content */}
       <div className="anim-fade-up delay-2">
         {activeTab === 'attendance' && <AttendanceTab courseId={courseId} />}
-        {activeTab === 'marks' && <MarksTab courseId={courseId} />}
+        {activeTab === 'marks' && course.type === 'theory' && <MarksTab courseId={courseId} />}
         {activeTab === 'labs' && course.type === 'lab' && <LabsTab courseId={courseId} />}
       </div>
     </div>

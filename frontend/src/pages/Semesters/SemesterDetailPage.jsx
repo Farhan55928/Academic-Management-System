@@ -96,10 +96,12 @@ export default function SemesterDetailPage() {
             🔬 Labs
           </button>
         )}
-        <button className="btn btn-outline btn-xs"
-          onClick={() => navigate(`/courses/${course._id}#marks`)}>
-          📊 Marks
-        </button>
+        {course.type === 'theory' && (
+          <button className="btn btn-outline btn-xs"
+            onClick={() => navigate(`/courses/${course._id}#marks`)}>
+            📊 Marks
+          </button>
+        )}
       </div>
     </div>
   );
