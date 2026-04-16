@@ -1,43 +1,64 @@
-import { useState } from 'react';
-import AddMember from './components/AddMember';
-import MemberList from './components/MemberList';
-import FindMember from './components/FindMember';
-import CampaignList from './components/CampaignList';
+import './index.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { Toaster } from 'react-hot-toast';
+import { useAuth } from './hooks/useAuth.js';
+import Layout from './components/Layout/Layout.jsx';
+import LoginPage from './pages/Login/LoginPage.jsx';
+import DashboardPage from './pages/Home/DashboardPage.jsx';
+import SemestersPage from './pages/Semesters/SemestersPage.jsx';
+import SemesterDetailPage from './pages/Semesters/SemesterDetailPage.jsx';
+import AttendancePage from './pages/Attendance/AttendancePage.jsx';
+import LabsPage from './pages/Labs/LabsPage.jsx';
+import MarksPage from './pages/Marks/MarksPage.jsx';
 
-function App() {
-  const [members, setMembers] = useState([]);
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
 
-  const handleMemberAdded = (newMember) => {
-    setMembers(prev => [...prev, newMember].sort((a, b) => a.age - b.age));
-  };
+function AppRoutes() {
+  const { isAuthenticated, user, logout, login } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Routes>
+          <Route path="/login" element={<LoginPage onLogin={login} />} />
+          <Route path="*"     element={<Navigate to="/login" replace />} />
+        </Routes>
+        <Toaster position="top-right" toastOptions={{
+          style: { fontFamily: 'var(--font-body)', fontSize: 14 },
+          success: { iconTheme: { primary: 'var(--blue)', secondary: '#fff' } }
+        }} />
+      </>
+    );
+  }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0a0a0a',
-      fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-      padding: '40px 20px',
-    }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-
-      <div style={{ maxWidth: 680, margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ marginBottom: 36 }}>
-          <p style={{ margin: '0 0 4px', color: '#c8f135', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-            Member Management
-          </p>
-          <h1 style={{ margin: 0, color: '#ffffff', fontSize: 30, fontWeight: 900, letterSpacing: '-0.02em' }}>
-            No Pain No Lie Gym
-          </h1>
-        </div>
-
-        <AddMember onMemberAdded={handleMemberAdded} />
-        <MemberList members={members} setMembers={setMembers} />
-        <FindMember />
-        <CampaignList />
-      </div>
-    </div>
+    <>
+      <Layout user={user} onLogout={logout}>
+        <Routes>
+          <Route path="/"                          element={<DashboardPage />} />
+          <Route path="/semesters"                 element={<SemestersPage />} />
+          <Route path="/semesters/:semesterId"     element={<SemesterDetailPage />} />
+          <Route path="/courses/:courseId/attendance" element={<AttendancePage />} />
+          <Route path="/courses/:courseId/labs"    element={<LabsPage />} />
+          <Route path="/courses/:courseId/marks"   element={<MarksPage />} />
+          <Route path="*"                          element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
+      <Toaster position="top-right" toastOptions={{
+        style: { fontFamily: 'var(--font-body)', fontSize: 14 },
+        success: { iconTheme: { primary: 'var(--blue)', secondary: '#fff' } }
+      }} />
+    </>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
+}
