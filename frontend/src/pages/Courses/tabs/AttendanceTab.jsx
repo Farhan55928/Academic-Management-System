@@ -1,22 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
-import { MdAdd, MdEdit, MdDelete, MdArrowBack, MdEmail, MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
+import { MdAdd, MdEdit, MdDelete, MdEmail, MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
-import { getAttendance, addAttendance, updateAttendance, deleteAttendance } from '../../api/attendance.js';
-import { getCourses } from '../../api/courses.js';
-import { getSemesters } from '../../api/semesters.js';
-import PageHeader from '../../components/UI/PageHeader.jsx';
-import StatCard from '../../components/UI/StatCard.jsx';
-import Modal from '../../components/UI/Modal.jsx';
-import EmptyState from '../../components/UI/EmptyState.jsx';
+import { getAttendance, addAttendance, updateAttendance, deleteAttendance } from '../../../api/attendance.js';
+import StatCard from '../../../components/UI/StatCard.jsx';
+import Modal from '../../../components/UI/Modal.jsx';
+import EmptyState from '../../../components/UI/EmptyState.jsx';
 
 const EMPTY_FORM = { date: moment().format('YYYY-MM-DD'), status: 'present', remark: '', emailSent: false };
 
-export default function AttendancePage() {
-  const { courseId } = useParams();
-  const navigate     = useNavigate();
-  const [course,   setCourse]   = useState(null);
+export default function AttendanceTab({ courseId }) {
   const [records,  setRecords]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [modal,    setModal]    = useState(false);
@@ -24,27 +17,15 @@ export default function AttendancePage() {
   const [editId,   setEditId]   = useState(null);
   const [saving,   setSaving]   = useState(false);
 
-  const load = () =>
-    Promise.all([
-      getAttendance(courseId).then(r => setRecords(r.data)),
-      getCourses('dummy').catch(() => null), // will fall back
-    ]);
+  const load = () => {
+    setLoading(true);
+    getAttendance(courseId).then(r => {
+      setRecords(r.data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  };
 
-  const loadCourse = () =>
-    getSemesters().then(async res => {
-      for (const sem of res.data) {
-        const r = await getCourses(sem._id);
-        const c = r.data.find(c => c._id === courseId);
-        if (c) { setCourse(c); return; }
-      }
-    });
-
-  useEffect(() => {
-    Promise.all([
-      getAttendance(courseId).then(r => setRecords(r.data)),
-      loadCourse(),
-    ]).finally(() => setLoading(false));
-  }, [courseId]);
+  useEffect(() => { load(); }, [courseId]);
 
   const openAdd  = () => { setForm(EMPTY_FORM); setEditId(null); setModal(true); };
   const openEdit = (r) => {
@@ -99,24 +80,7 @@ export default function AttendancePage() {
     : 'var(--red)';
 
   return (
-    <div className="page-wrapper">
-      <div style={{ marginBottom: 16 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>
-          <MdArrowBack size={15} /> Back
-        </button>
-      </div>
-
-      <PageHeader
-        eyebrow={course?.code || 'Course'}
-        title={course ? `${course.name} — Attendance` : 'Attendance'}
-        subtitle="Track your class attendance, add remarks, and manage email notifications"
-        actions={
-          <button className="btn btn-primary" onClick={openAdd}>
-            <MdAdd size={16} /> Add Class
-          </button>
-        }
-      />
-
+    <div className="tab-pane-content">
       {/* Stats */}
       <div className="stats-grid anim-fade-up delay-1">
         <StatCard label="Total Classes"    value={total}   accentColor="var(--navy)" />
@@ -124,37 +88,22 @@ export default function AttendancePage() {
         <StatCard label="Absent"           value={absent}  accentColor="var(--red)" />
         <StatCard label="Attendance"       value={`${pct}%`} accentColor={pctColor}
           sub={total > 0 ? `${present} of ${total} classes` : 'No records yet'} />
-        {absentPending > 0 && (
-          <StatCard label="Emails Pending" value={absentPending} accentColor="var(--amber)"
-            sub="Absent — email not sent" />
-        )}
       </div>
 
-      {/* Progress */}
-      {total > 0 && (
-        <div className="anim-fade-up delay-2" style={{ marginBottom: 24 }}>
-          <div className="flex justify-between text-xs text-muted mb-1">
-            <span>Attendance rate</span><span style={{ color: pctColor, fontWeight: 700 }}>{pct}%</span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${pct}%`, background: pctColor }} />
-          </div>
-          {pct < 75 && (
-            <p style={{ fontSize: 12, color: 'var(--red)', marginTop: 6 }}>
-              ⚠️ Below 75% minimum attendance threshold
-            </p>
-          )}
-        </div>
-      )}
+      <div className="flex justify-between items-center mb-6 anim-fade-up delay-2">
+        <h3 className="section-title">Class Logs</h3>
+        <button className="btn btn-primary btn-sm" onClick={openAdd}>
+          <MdAdd size={16} /> Add Class
+        </button>
+      </div>
 
-      {/* Table */}
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
       ) : records.length === 0 ? (
         <EmptyState
           icon="📋"
           title="No classes recorded"
-          description="Start tracking your attendance by adding a class record."
+          description="Start tracking your attendance for this course."
           action={<button className="btn btn-primary" onClick={openAdd}><MdAdd size={15}/> Add Class</button>}
         />
       ) : (

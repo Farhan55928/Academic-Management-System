@@ -35,7 +35,7 @@ function CourseOverviewCard({ course }) {
     <div
       className="card card-body"
       style={{ cursor: 'pointer' }}
-      onClick={() => navigate(`/courses/${course._id}/attendance`)}
+      onClick={() => navigate(`/courses/${course._id}`)}
     >
       <div className="flex items-center justify-between mb-2">
         <div>

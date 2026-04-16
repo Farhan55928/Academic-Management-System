@@ -30,15 +30,15 @@ export default function SemestersPage() {
   const openEdit = (s) => { setForm({ name: s.name, year: s.year }); setEditId(s._id); setModal('form'); };
   const close    = () => { setModal(null); setEditId(null); };
 
-  const handleSave = async () => {
-    if (!form.name || !form.year) return toast.error('Name and year are required');
+  const handleSave = async (formData) => {
+    if (!formData.name || !formData.year) return toast.error('Name and year are required');
     setSaving(true);
     try {
       if (editId) {
-        await updateSemester(editId, form);
+        await updateSemester(editId, formData);
         toast.success('Semester updated');
       } else {
-        await createSemester(form);
+        await createSemester(formData);
         toast.success('Semester created');
       }
       close();
@@ -138,28 +138,43 @@ export default function SemestersPage() {
       )}
 
       {modal === 'form' && (
-        <Modal
-          title={editId ? 'Edit Semester' : 'New Semester'}
+        <SemesterFormModal
+          editId={editId}
+          initialForm={form}
           onClose={close}
-          footer={<>
-            <button className="btn btn-outline" onClick={close}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </>}
-        >
-          <div className="form-group">
-            <label className="form-label">Semester Name</label>
-            <input className="form-input" placeholder="e.g. Spring 2025"
-              value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Year</label>
-            <input className="form-input" type="number" placeholder="2025"
-              value={form.year} onChange={e => setForm(f => ({ ...f, year: +e.target.value }))} />
-          </div>
-        </Modal>
+          onSave={handleSave}
+          saving={saving}
+        />
       )}
     </div>
   );
 }
+
+function SemesterFormModal({ editId, initialForm, onClose, onSave, saving }) {
+  const [form, setForm] = useState(initialForm);
+
+  return (
+    <Modal
+      title={editId ? 'Edit Semester' : 'New Semester'}
+      onClose={onClose}
+      footer={<>
+        <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        <button className="btn btn-primary" onClick={() => onSave(form)} disabled={saving}>
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+      </>}
+    >
+      <div className="form-group">
+        <label className="form-label">Semester Name</label>
+        <input className="form-input" placeholder="e.g. Spring 2025" autoFocus
+          value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+      </div>
+      <div className="form-group">
+        <label className="form-label">Year</label>
+        <input className="form-input" type="number" placeholder="2025"
+          value={form.year} onChange={e => setForm(f => ({ ...f, year: +e.target.value }))} />
+      </div>
+    </Modal>
+  );
+}
+

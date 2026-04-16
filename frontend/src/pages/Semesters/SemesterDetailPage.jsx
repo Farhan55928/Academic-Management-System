@@ -38,15 +38,15 @@ export default function SemesterDetailPage() {
   };
   const close = () => { setModal(false); setEditId(null); };
 
-  const handleSave = async () => {
-    if (!form.name || !form.code) return toast.error('Name and code are required');
+  const handleSave = async (formData) => {
+    if (!formData.name || !formData.code) return toast.error('Name and code are required');
     setSaving(true);
     try {
       if (editId) {
-        await updateCourse(editId, form);
+        await updateCourse(editId, formData);
         toast.success('Course updated');
       } else {
-        await createCourse(semesterId, form);
+        await createCourse(semesterId, formData);
         toast.success('Course added');
       }
       close();
@@ -71,37 +71,35 @@ export default function SemesterDetailPage() {
   const CourseCard = ({ course, idx }) => (
     <div className={`course-card anim-fade-up delay-${Math.min(idx + 1, 5)}`}>
       <div className="course-card-header">
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/courses/${course._id}`)}>
           <span className={`badge ${course.type === 'lab' ? 'badge-blue' : 'badge-navy'} mb-2`}>
             {course.type === 'lab' ? '🔬 Lab' : '📖 Theory'}
           </span>
           <h3 className="course-card-title">{course.name}</h3>
           <p className="course-card-code">{course.code} · {course.creditHours} CR</p>
         </div>
-        <div className="flex gap-1">
-          <button className="btn btn-ghost btn-icon" onClick={() => openEdit(course)}><MdEdit size={15}/></button>
-          <button className="btn btn-ghost btn-icon" onClick={() => handleDelete(course._id)}
+        <div className="flex gap-1" style={{ position: 'relative', zIndex: 1 }}>
+          <button className="btn btn-ghost btn-icon" onClick={(e) => { e.stopPropagation(); openEdit(course); }}><MdEdit size={15}/></button>
+          <button className="btn btn-ghost btn-icon" onClick={(e) => { e.stopPropagation(); handleDelete(course._id); }}
             style={{ color: 'var(--red)' }}><MdDelete size={15}/></button>
         </div>
       </div>
 
       <div className="course-card-actions">
         <button className="btn btn-outline btn-xs"
-          onClick={() => navigate(`/courses/${course._id}/attendance`)}>
+          onClick={() => navigate(`/courses/${course._id}#attendance`)}>
           📋 Attendance
         </button>
         {course.type === 'lab' && (
           <button className="btn btn-outline btn-xs"
-            onClick={() => navigate(`/courses/${course._id}/labs`)}>
+            onClick={() => navigate(`/courses/${course._id}#labs`)}>
             🔬 Labs
           </button>
         )}
-        {course.type === 'theory' && (
-          <button className="btn btn-outline btn-xs"
-            onClick={() => navigate(`/courses/${course._id}/marks`)}>
-            📊 Marks
-          </button>
-        )}
+        <button className="btn btn-outline btn-xs"
+          onClick={() => navigate(`/courses/${course._id}#marks`)}>
+          📊 Marks
+        </button>
       </div>
     </div>
   );
@@ -162,43 +160,59 @@ export default function SemesterDetailPage() {
       )}
 
       {modal && (
-        <Modal
-          title={editId ? 'Edit Course' : 'Add Course'}
+        <CourseFormModal
+          editId={editId}
+          initialForm={form}
           onClose={close}
-          footer={<>
-            <button className="btn btn-outline" onClick={close}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </>}
-        >
-          <div className="form-group">
-            <label className="form-label">Course Name</label>
-            <input className="form-input" placeholder="e.g. Data Structures"
-              value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Course Code</label>
-            <input className="form-input" placeholder="e.g. CSE-3101"
-              value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <div className="form-group">
-              <label className="form-label">Type</label>
-              <select className="form-select"
-                value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
-                <option value="theory">Theory</option>
-                <option value="lab">Lab</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Credit Hours</label>
-              <input className="form-input" type="number" min={1} max={6}
-                value={form.creditHours} onChange={e => setForm(f => ({ ...f, creditHours: +e.target.value }))} />
-            </div>
-          </div>
-        </Modal>
+          onSave={handleSave}
+          saving={saving}
+        />
       )}
     </div>
   );
 }
+
+// Extract modal to its own component to prevent parent re-renders on every keystroke
+function CourseFormModal({ editId, initialForm, onClose, onSave, saving }) {
+  const [form, setForm] = useState(initialForm);
+
+  return (
+    <Modal
+      title={editId ? 'Edit Course' : 'Add Course'}
+      onClose={onClose}
+      footer={<>
+        <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+        <button className="btn btn-primary" onClick={() => onSave(form)} disabled={saving}>
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+      </>}
+    >
+      <div className="form-group">
+        <label className="form-label">Course Name</label>
+        <input className="form-input" placeholder="e.g. Data Structures" autoFocus
+          value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+      </div>
+      <div className="form-group">
+        <label className="form-label">Course Code</label>
+        <input className="form-input" placeholder="e.g. CSE-3101"
+          value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        <div className="form-group">
+          <label className="form-label">Type</label>
+          <select className="form-select"
+            value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+            <option value="theory">Theory</option>
+            <option value="lab">Lab</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Credit Hours</label>
+          <input className="form-input" type="number" min={1} max={6}
+            value={form.creditHours} onChange={e => setForm(f => ({ ...f, creditHours: +e.target.value }))} />
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
