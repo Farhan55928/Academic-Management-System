@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MdAdd, MdCalendarMonth, MdArrowForward, MdDelete, MdClose } from 'react-icons/md';
+import { MdAdd, MdCalendarMonth, MdArrowForward, MdDelete, MdClose, MdEdit, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
-import { getMonths, createMonth, deleteMonth } from '../../api/month.js';
+import { getMonths, createMonth, deleteMonth, updateMonth } from '../../api/month.js';
 import EmptyState from '../../components/UI/EmptyState.jsx';
 
 const MONTHS_LIST = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -143,6 +143,7 @@ export default function MonthsPage() {
                   month={m}
                   gradient={MONTH_GRADIENTS[i % MONTH_GRADIENTS.length]}
                   onDelete={handleDelete}
+                  onBudgetUpdate={load}
                 />
               ))}
             </div>
@@ -232,8 +233,23 @@ export default function MonthsPage() {
   );
 }
 
-function MonthCard({ month, gradient, onDelete }) {
+function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
   const [hovered, setHovered] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [budgetInput, setBudgetInput] = useState(month.budget || '');
+  const [saving, setSaving] = useState(false);
+
+  const handleBudgetSave = async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    setSaving(true);
+    try {
+      await updateMonth(month._id, { budget: Number(budgetInput) });
+      toast.success('Budget updated');
+      setEditingBudget(false);
+      onBudgetUpdate();
+    } catch { toast.error('Failed to update budget'); }
+    finally { setSaving(false); }
+  };
 
   return (
     <Link
@@ -286,11 +302,40 @@ function MonthCard({ month, gradient, onDelete }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9' }}>
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 2 }}>Target Budget</p>
-          <p style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
-            ৳{Number(month.budget || 0).toLocaleString()}
-          </p>
+        <div style={{ flex: 1, marginRight: 12 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 4 }}>Target Budget</p>
+          {editingBudget ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={e => e.preventDefault()}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#64748b' }}>৳</span>
+              <input
+                autoFocus
+                type="number"
+                value={budgetInput}
+                onChange={e => setBudgetInput(e.target.value)}
+                onClick={e => e.preventDefault()}
+                style={{ flex: 1, border: '2px solid #3b82f6', borderRadius: 10, padding: '6px 10px', fontSize: 16, fontWeight: 700, color: '#0f172a', outline: 'none', width: 90 }}
+              />
+              <button
+                onClick={handleBudgetSave}
+                disabled={saving}
+                style={{ width: 36, height: 36, borderRadius: 10, background: '#3b82f6', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              >
+                <MdCheck size={18} />
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <p style={{ fontSize: 20, fontWeight: 800, color: month.budget > 0 ? '#0f172a' : '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
+                {month.budget > 0 ? `৳${Number(month.budget).toLocaleString()}` : 'Not set'}
+              </p>
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); setEditingBudget(true); setBudgetInput(month.budget || ''); }}
+                style={{ width: 28, height: 28, borderRadius: 8, background: 'transparent', border: '1px solid #e2e8f0', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}
+              >
+                <MdEdit size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
