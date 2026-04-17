@@ -10,6 +10,8 @@ import courseRoutes from './src/routes/courseRoutes.js';
 import attendanceRoutes from './src/routes/attendanceRoutes.js';
 import labRoutes from './src/routes/labRoutes.js';
 import marksRoutes from './src/routes/marksRoutes.js';
+import expenseRoutes from './src/routes/expenseRoutes.js';
+import monthRoutes from './src/routes/monthRoutes.js';
 
 // Standalone routes (for update/delete by ID, not nested)
 import { protect } from './src/middleware/authMiddleware.js';
@@ -63,6 +65,10 @@ app.use('/api/courses/:courseId/marks', marksRoutes);
 // ─── Marks (standalone for PUT/DELETE) ────────────────
 app.put('/api/marks/:id', protect, updateMarks);
 app.delete('/api/marks/:id', protect, deleteMarks);
+
+// ─── Expenses ─────────────────────────────────────────
+app.use('/api/months', monthRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // ─── Start ────────────────────────────────────────────
 connectDB().then(() => {

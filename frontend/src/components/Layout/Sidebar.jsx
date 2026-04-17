@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   MdDashboard, MdCalendarViewMonth, MdLogout,
-  MdOutlineSchool, MdCircle
+  MdOutlineSchool, MdCircle, MdAccountBalanceWallet
 } from 'react-icons/md';
 import { getSemesters } from '../../api/semesters.js';
 
@@ -19,8 +19,9 @@ export default function Sidebar({ user, onLogout }) {
   }, [location.pathname]); // Re-check on nav
 
   const navLinks = [
-    { to: '/',           label: 'Dashboard',  icon: <MdDashboard size={17} /> },
-    { to: '/semesters',  label: 'Semesters',  icon: <MdCalendarViewMonth size={17} /> },
+    { to: '/',           label: 'Dashboard',   icon: <MdDashboard size={17} /> },
+    { to: '/semesters',  label: 'Semesters',   icon: <MdCalendarViewMonth size={17} /> },
+    { to: '/expenses',   label: 'Expense Log', icon: <MdAccountBalanceWallet size={17} /> },
   ];
 
   const isActive = (to) =>
