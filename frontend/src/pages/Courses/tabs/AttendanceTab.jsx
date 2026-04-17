@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MdAdd, MdEdit, MdDelete, MdEmail, MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
+import { MdAdd, MdEdit, MdDelete, MdEmail, MdCheckBox, MdCheckBoxOutlineBlank, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getAttendance, addAttendance, updateAttendance, deleteAttendance } from '../../../api/attendance.js';
@@ -168,44 +168,78 @@ export default function AttendanceTab({ courseId }) {
 
       {modal && (
         <Modal
+          premium={true}
           title={editId ? 'Edit Attendance Record' : 'Add Class Record'}
           onClose={close}
-          footer={<>
-            <button className="btn btn-outline" onClick={close}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </>}
-        >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <div className="form-group">
-              <label className="form-label">Date</label>
-              <input type="date" className="form-input"
-                value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+          footer={
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.1)' }} onClick={close}>Cancel</button>
+              <button className="btn-premium" style={{ padding: '10px 24px', fontSize: 14 }} onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Record'}
+              </button>
             </div>
-            <div className="form-group">
-              <label className="form-label">Status</label>
-              <select className="form-select"
-                value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                <option value="present">Present</option>
-                <option value="absent">Absent</option>
-              </select>
+          }
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div className="glass-form-group">
+              <label className="glass-label">Date</label>
+              <div className="glass-input-wrapper">
+                <input type="date" className="glass-input"
+                  value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+              </div>
+            </div>
+            <div className="glass-form-group">
+              <label className="glass-label">Status</label>
+              <div className="glass-input-wrapper">
+                <select className="glass-select"
+                  value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                  <option value="present">Present</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Remark (Optional)</label>
-            <textarea className="form-textarea" placeholder="Any notes for this class…"
-              value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} />
+          <div className="glass-form-group">
+            <label className="glass-label">Remark (Optional)</label>
+            <div className="glass-input-wrapper">
+              <textarea className="glass-input" placeholder="Any notes for this class…"
+                style={{ minHeight: 80, resize: 'vertical' }}
+                value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} />
+            </div>
           </div>
           {form.status === 'absent' && (
-            <label className="checkbox-wrap">
-              <input type="checkbox" checked={form.emailSent}
-                onChange={e => setForm(f => ({ ...f, emailSent: e.target.checked }))} />
-              <span className="checkbox-label">
-                <MdEmail size={14} style={{ display: 'inline', marginRight: 4 }} />
-                Email sent to sir for leave of absence
+            <div 
+              onClick={() => setForm(f => ({ ...f, emailSent: !f.emailSent }))}
+              style={{ 
+                background: 'rgba(255,255,255,0.03)', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                borderRadius: 20, 
+                padding: '16px 20px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 12, 
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                marginTop: -4,
+                marginBottom: 10
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+            >
+              <div style={{ 
+                width: 24, height: 24, 
+                borderRadius: 8, 
+                background: form.emailSent ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'rgba(255,255,255,0.1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}>
+                {form.emailSent && <MdCheck size={16} color="#fff" />}
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: form.emailSent ? '#fff' : 'rgba(255,255,255,0.5)' }}>
+                <MdEmail size={16} style={{ display: 'inline', marginRight: 6, verticalAlign: 'middle' }} />
+                Email sent to teacher for leave of absence
               </span>
-            </label>
+            </div>
           )}
         </Modal>
       )}

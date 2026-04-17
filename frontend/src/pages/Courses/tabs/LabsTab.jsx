@@ -157,59 +157,76 @@ export default function LabsTab({ courseId }) {
 
       {modal && (
         <Modal
+          premium={true}
           title={editId ? 'Edit Lab Record' : 'Add Lab Record'}
           onClose={close}
-          footer={<>
-            <button className="btn btn-outline" onClick={close}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </>}
+          footer={
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.1)' }} onClick={close}>Cancel</button>
+              <button className="btn-premium" style={{ padding: '10px 24px', fontSize: 14 }} onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Record'}
+              </button>
+            </div>
+          }
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 14 }}>
-            <div className="form-group">
-              <label className="form-label">Lab #</label>
-              <input type="number" className="form-input" min={1}
-                value={form.labNumber} onChange={e => setForm(f => ({ ...f, labNumber: +e.target.value }))} />
+          <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: 20 }}>
+            <div className="glass-form-group">
+              <label className="glass-label">Lab #</label>
+              <div className="glass-input-wrapper">
+                <input type="number" className="glass-input" min={1}
+                  value={form.labNumber} onChange={e => setForm(f => ({ ...f, labNumber: +e.target.value }))} />
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Title</label>
-              <input className="form-input" placeholder="e.g. Experiment 1"
-                value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+            <div className="glass-form-group">
+              <label className="glass-label">Title</label>
+              <div className="glass-input-wrapper">
+                <input className="glass-input" placeholder="e.g. Experiment 1"
+                  value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+              </div>
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input type="date" className="form-input"
-              value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+          <div className="glass-form-group">
+            <label className="glass-label">Date</label>
+            <div className="glass-input-wrapper">
+              <input type="date" className="glass-input"
+                value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-md)', padding: '12px' }}>
-              <p className="text-xs font-bold mb-2">Task</p>
-              <div className="form-group">
-                <select className="form-select"
-                  value={form.taskStatus} onChange={e => setForm(f => ({ ...f, taskStatus: e.target.value }))}>
-                  {TASK_STATUS_OPTIONS.map(o => <option key={o} value={o}>{o.replace('_', ' ')}</option>)}
-                </select>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 1fr)', gap: 24, marginTop: 4 }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
+              <p className="glass-label" style={{ marginBottom: 15, color: 'rgba(96,165,250,0.8)' }}>Task Details</p>
+              <div className="glass-form-group">
+                <div className="glass-input-wrapper">
+                  <select className="glass-select"
+                    value={form.taskStatus} onChange={e => setForm(f => ({ ...f, taskStatus: e.target.value }))}>
+                    {TASK_STATUS_OPTIONS.map(o => <option key={o} value={o}>{o.replace('_', ' ')}</option>)}
+                  </select>
+                </div>
               </div>
-              <div className="form-group mt-2">
-                <input className="form-input" placeholder="Task remark…"
-                  value={form.taskRemark} onChange={e => setForm(f => ({ ...f, taskRemark: e.target.value }))} />
+              <div className="glass-form-group" style={{ marginBottom: 0, marginTop: 12 }}>
+                <div className="glass-input-wrapper">
+                  <input className="glass-input" style={{ fontSize: 14, padding: '12px 16px' }} placeholder="Task remark…"
+                    value={form.taskRemark} onChange={e => setForm(f => ({ ...f, taskRemark: e.target.value }))} />
+                </div>
               </div>
             </div>
 
-            <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-md)', padding: '12px' }}>
-              <p className="text-xs font-bold mb-2">Report</p>
-              <div className="form-group">
-                <select className="form-select"
-                  value={form.reportStatus} onChange={e => setForm(f => ({ ...f, reportStatus: e.target.value }))}>
-                  {REPORT_STATUS_OPTIONS.map(o => <option key={o} value={o}>{o.replace('_', ' ')}</option>)}
-                </select>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
+              <p className="glass-label" style={{ marginBottom: 15, color: 'rgba(96,165,250,0.8)' }}>Report Details</p>
+              <div className="glass-form-group">
+                <div className="glass-input-wrapper">
+                  <select className="glass-select"
+                    value={form.reportStatus} onChange={e => setForm(f => ({ ...f, reportStatus: e.target.value }))}>
+                    {REPORT_STATUS_OPTIONS.map(o => <option key={o} value={o}>{o.replace('_', ' ')}</option>)}
+                  </select>
+                </div>
               </div>
-              <div className="form-group mt-2">
-                <input className="form-input" placeholder="Marks" type="number"
-                  value={form.reportMarks} onChange={e => setForm(f => ({ ...f, reportMarks: e.target.value }))} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12, marginTop: 12 }}>
+                <div className="glass-input-wrapper">
+                  <input className="glass-input" style={{ fontSize: 14, padding: '12px 16px' }} placeholder="Marks" type="number"
+                    value={form.reportMarks} onChange={e => setForm(f => ({ ...f, reportMarks: e.target.value }))} />
+                </div>
               </div>
             </div>
           </div>

@@ -164,50 +164,66 @@ export default function MarksTab({ courseId }) {
 
       {modal && (
         <Modal
+          premium={true}
           title={editId ? 'Edit Marks Record' : 'Add Marks Record'}
           onClose={close}
-          footer={<>
-            <button className="btn btn-outline" onClick={close}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-          </>}
+          footer={
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button className="btn btn-outline" style={{ color: 'rgba(255,255,255,0.6)', borderColor: 'rgba(255,255,255,0.1)' }} onClick={close}>Cancel</button>
+              <button className="btn-premium" style={{ padding: '10px 24px', fontSize: 14 }} onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Record'}
+              </button>
+            </div>
+          }
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <div className="form-group">
-              <label className="form-label">Type</label>
-              <select className="form-select"
-                value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
-                {TYPE_OPTS.map(t => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
-              </select>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div className="glass-form-group">
+              <label className="glass-label">Type</label>
+              <div className="glass-input-wrapper">
+                <select className="glass-select"
+                  value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+                  {TYPE_OPTS.map(t => <option key={t} value={t}>{TYPE_LABELS[t]}</option>)}
+                </select>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Date</label>
-              <input type="date" className="form-input"
-                value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Title</label>
-            <input className="form-input" placeholder="e.g. Quiz 1, Mid Term…"
-              value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <div className="form-group">
-              <label className="form-label">Obtained Marks</label>
-              <input type="number" className="form-input" min={0}
-                value={form.obtainedMarks} onChange={e => setForm(f => ({ ...f, obtainedMarks: e.target.value }))} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Total Marks</label>
-              <input type="number" className="form-input" min={1}
-                value={form.totalMarks} onChange={e => setForm(f => ({ ...f, totalMarks: e.target.value }))} />
+            <div className="glass-form-group">
+              <label className="glass-label">Date</label>
+              <div className="glass-input-wrapper">
+                <input type="date" className="glass-input"
+                  value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+              </div>
             </div>
           </div>
-          <div className="form-group">
-            <label className="form-label">Remark (Optional)</label>
-            <textarea className="form-textarea" placeholder="Any notes…"
-              value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} />
+          <div className="glass-form-group">
+            <label className="glass-label">Title</label>
+            <div className="glass-input-wrapper">
+              <input className="glass-input" placeholder="e.g. Quiz 1, Mid Term…"
+                value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div className="glass-form-group">
+              <label className="glass-label">Obtained Marks</label>
+              <div className="glass-input-wrapper">
+                <input type="number" className="glass-input" min={0}
+                  value={form.obtainedMarks} onChange={e => setForm(f => ({ ...f, obtainedMarks: e.target.value }))} />
+              </div>
+            </div>
+            <div className="glass-form-group">
+              <label className="glass-label">Total Marks</label>
+              <div className="glass-input-wrapper">
+                <input type="number" className="glass-input" min={1}
+                  value={form.totalMarks} onChange={e => setForm(f => ({ ...f, totalMarks: e.target.value }))} />
+              </div>
+            </div>
+          </div>
+          <div className="glass-form-group">
+            <label className="glass-label">Remark (Optional)</label>
+            <div className="glass-input-wrapper">
+              <textarea className="glass-input" placeholder="Any notes…"
+                style={{ minHeight: 80, resize: 'vertical' }}
+                value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} />
+            </div>
           </div>
         </Modal>
       )}
