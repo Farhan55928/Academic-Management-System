@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { MdAdd, MdStar, MdCalendarToday, MdBook, MdScience, MdHistory, MdArrowForward } from 'react-icons/md';
+import {
+  MdAdd,
+  MdArrowForward,
+  MdAutoGraph,
+  MdBook,
+  MdCalendarToday,
+  MdHistory,
+  MdOutlineArrowOutward,
+  MdOutlineCheckCircle,
+  MdOutlineTimeline,
+  MdScience,
+  MdTrendingUp,
+} from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getSemesters } from '../../api/semesters.js';
@@ -12,284 +24,397 @@ import PageHeader from '../../components/UI/PageHeader.jsx';
 import StatCard from '../../components/UI/StatCard.jsx';
 import EmptyState from '../../components/UI/EmptyState.jsx';
 
+function getAttendanceTone(pct) {
+  if (pct === null) return 'neutral';
+  if (pct >= 85) return 'excellent';
+  if (pct >= 70) return 'good';
+  if (pct >= 60) return 'warning';
+  return 'risk';
+}
+
+function getAttendanceLabel(pct) {
+  if (pct === null) return 'No records yet';
+  if (pct >= 85) return 'Excellent streak';
+  if (pct >= 70) return 'Healthy pace';
+  if (pct >= 60) return 'Watch threshold';
+  return 'Needs recovery';
+}
+
+function getAttendanceColor(pct) {
+  if (pct === null) return 'var(--text-faint)';
+  if (pct >= 85) return 'var(--green)';
+  if (pct >= 70) return 'var(--blue)';
+  if (pct >= 60) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+function getActivityCopy(activity) {
+  if (activity.actType === 'Attendance') {
+    return activity.status === 'present' ? 'Attended class' : 'Missed class';
+  }
+
+  if (activity.actType === 'Lab') {
+    return `Lab ${activity.labNumber} updated`;
+  }
+
+  return `${activity.title} graded`;
+}
+
 function CourseOverviewCard({ course }) {
   const [stats, setStats] = useState({ total: 0, present: 0, pct: null });
   const navigate = useNavigate();
 
   useEffect(() => {
-    getAttendance(course._id).then(res => {
-      const records = res.data;
-      const total   = records.length;
-      const present = records.filter(r => r.status === 'present').length;
-      const pct     = total > 0 ? Math.round((present / total) * 100) : null;
-      setStats({ total, present, pct });
-    }).catch(() => {});
+    getAttendance(course._id)
+      .then((res) => {
+        const records = res.data;
+        const total = records.length;
+        const present = records.filter((record) => record.status === 'present').length;
+        const pct = total > 0 ? Math.round((present / total) * 100) : null;
+        setStats({ total, present, pct });
+      })
+      .catch(() => {});
   }, [course._id]);
 
-  const pctColor = stats.pct === null ? 'var(--blue)'
-    : stats.pct >= 75 ? 'var(--green)'
-    : stats.pct >= 60 ? 'var(--amber)'
-    : 'var(--red)';
+  const tone = getAttendanceTone(stats.pct);
+  const attendanceColor = getAttendanceColor(stats.pct);
+  const attendanceWidth = stats.pct === null ? 14 : Math.max(stats.pct, 12);
 
   return (
-    <div
-      className="card card-body"
-      style={{ cursor: 'pointer' }}
+    <button
+      type="button"
+      className={`course-spotlight-card course-spotlight-card-${course.type} course-spotlight-card-${tone}`}
       onClick={() => navigate(`/courses/${course._id}`)}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <div className="flex items-center gap-2">
-            {course.type === 'lab'
-              ? <MdScience size={14} style={{ color: 'var(--blue)' }} />
-              : <MdBook size={14} style={{ color: 'var(--navy)' }} />
-            }
-            <span className={`badge ${course.type === 'lab' ? 'badge-blue' : 'badge-navy'}`}>
-              {course.type === 'lab' ? 'Lab' : 'Theory'}
-            </span>
+      <div className="course-spotlight-glow" />
+
+      <div className="course-spotlight-topline">
+        <div className="course-spotlight-tags">
+          <span className={`course-type-chip course-type-chip-${course.type}`}>
+            {course.type === 'lab' ? <MdScience size={13} /> : <MdBook size={13} />}
+            {course.type === 'lab' ? 'Lab course' : 'Theory course'}
+          </span>
+          <span className="course-credit-pill">{course.creditHours} CR</span>
+        </div>
+
+        <div className="course-spotlight-kicker">
+          <span className="course-kicker-label">Attendance</span>
+          <strong style={{ color: attendanceColor }}>
+            {stats.pct !== null ? `${stats.pct}%` : '--'}
+          </strong>
+        </div>
+      </div>
+
+      <div className="course-spotlight-main">
+        <div className="course-spotlight-copy">
+          <p className="course-spotlight-code">{course.code}</p>
+          <h3>{course.name}</h3>
+          <p className="course-spotlight-status">{getAttendanceLabel(stats.pct)}</p>
+        </div>
+
+        <div className="course-spotlight-meter">
+          <div className="course-meter-track">
+            <div
+              className="course-meter-fill"
+              style={{ width: `${attendanceWidth}%`, background: attendanceColor }}
+            />
           </div>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 700, marginTop: 6 }}>
-            {course.name}
-          </h3>
-          <p className="text-xs text-muted mt-1">{course.code} · {course.creditHours} CR</p>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: pctColor, lineHeight: 1 }}>
-            {stats.pct !== null ? `${stats.pct}%` : '—'}
-          </p>
-          <p className="text-xs text-muted mt-1">Attendance</p>
+          <span>{stats.present}/{stats.total} classes present</span>
         </div>
       </div>
 
-      {stats.pct !== null && (
-        <div className="progress-bar mt-2">
-          <div className="progress-fill" style={{
-            width: `${stats.pct}%`,
-            background: pctColor
-          }} />
+      <div className="course-spotlight-footer">
+        <div className="course-spotlight-stat">
+          <span>Course type</span>
+          <strong>{course.type === 'lab' ? 'Practical' : 'Conceptual'}</strong>
         </div>
-      )}
 
-      <div className="flex gap-3 mt-2" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-        <span>{stats.present}/{stats.total} classes</span>
-        <span>·</span>
-        <span style={{ color: 'var(--blue)' }}>View →</span>
+        <div className="course-spotlight-stat">
+          <span>Momentum</span>
+          <strong>{stats.total > 0 ? `${stats.total} logged sessions` : 'Start tracking'}</strong>
+        </div>
+
+        <span className="course-spotlight-link">
+          Open workspace
+          <MdOutlineArrowOutward size={14} />
+        </span>
       </div>
-    </div>
+    </button>
   );
 }
 
 export default function DashboardPage() {
   const [semesters, setSemesters] = useState([]);
-  const [courses,   setCourses]   = useState([]);
-  const [activity,  setActivity]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [activity, setActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const activeSemester = semesters.find(s => s.isActive) || semesters[0] || null;
+  const activeSemester = semesters.find((semester) => semester.isActive) || semesters[0] || null;
 
   useEffect(() => {
     getSemesters()
-      .then(res => setSemesters(res.data))
+      .then((res) => setSemesters(res.data))
       .catch(() => toast.error('Failed to load semesters'))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     if (!activeSemester) return;
+
     getCourses(activeSemester._id)
-      .then(async res => {
+      .then(async (res) => {
         const courseList = res.data;
         setCourses(courseList);
-        
-        // Fetch activity
+
         const activities = [];
-        for (const c of courseList) {
+
+        for (const course of courseList) {
           try {
-            const [att, labs, marks] = await Promise.all([
-              getAttendance(c._id),
-              getLabs(c._id),
-              getMarks(c._id)
+            const [attendance, labs, marks] = await Promise.all([
+              getAttendance(course._id),
+              getLabs(course._id),
+              getMarks(course._id),
             ]);
-            
-            att.data.forEach(r => activities.push({ ...r, courseName: c.name, actType: 'Attendance', actIcon: <MdCalendarToday/> }));
-            labs.data.forEach(r => activities.push({ ...r, courseName: c.name, actType: 'Lab', actIcon: <MdScience/> }));
-            marks.data.forEach(r => activities.push({ ...r, courseName: c.name, actType: 'Marks', actIcon: <MdBook/> }));
-          } catch (e) {}
+
+            attendance.data.forEach((record) =>
+              activities.push({
+                ...record,
+                courseName: course.name,
+                actType: 'Attendance',
+                actIcon: <MdCalendarToday />,
+              })
+            );
+            labs.data.forEach((record) =>
+              activities.push({
+                ...record,
+                courseName: course.name,
+                actType: 'Lab',
+                actIcon: <MdScience />,
+              })
+            );
+            marks.data.forEach((record) =>
+              activities.push({
+                ...record,
+                courseName: course.name,
+                actType: 'Marks',
+                actIcon: <MdAutoGraph />,
+              })
+            );
+          } catch {
+            // Keep the dashboard resilient even if one course payload fails.
+          }
         }
-        
+
         activities.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         setActivity(activities.slice(0, 5));
       })
       .catch(() => {});
   }, [activeSemester?._id]);
 
-  const theoryCourses = courses.filter(c => c.type === 'theory');
-  const labCourses    = courses.filter(c => c.type === 'lab');
+  const theoryCourses = courses.filter((course) => course.type === 'theory');
+  const labCourses = courses.filter((course) => course.type === 'lab');
+  const trackedCourses = courses.filter((course) => course.type === 'theory' || course.type === 'lab');
+  const activeBadge = activeSemester ? `${activeSemester.name} ${activeSemester.year}` : 'No active semester';
 
-  if (loading) return (
-    <div className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: 20 }}>Loading…</div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div
+        className="page-wrapper"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}
+      >
+        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: 20 }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper dashboard-page">
       <PageHeader
         eyebrow="Overview"
         title="Dashboard"
-        subtitle={activeSemester
-          ? `Active semester: ${activeSemester.name} ${activeSemester.year}`
-          : 'No active semester set'}
+        subtitle={activeSemester ? `Active semester: ${activeBadge}` : 'No active semester set'}
         actions={
           <button className="btn btn-primary" onClick={() => navigate('/semesters')}>
-            <MdCalendarToday size={15} /> Manage Semesters
+            <MdCalendarToday size={15} />
+            Manage Semesters
           </button>
         }
       />
 
       {!activeSemester ? (
         <EmptyState
-          icon="🎓"
+          icon="Academic"
           title="No semester found"
-          description="Create your first semester to get started."
+          description="Create your first semester to start shaping the dashboard."
           action={
             <button className="btn btn-primary" onClick={() => navigate('/semesters')}>
-              <MdAdd size={15} /> Add Semester
+              <MdAdd size={15} />
+              Add Semester
             </button>
           }
         />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 32, alignItems: 'start', width: '100%' }}>
-          <div>
-            {/* Stats */}
-            <div className="stats-grid anim-fade-up delay-1">
-              <StatCard label="Total Courses"  value={courses.length}       accentColor="var(--navy)" />
-              <StatCard label="Theory Courses" value={theoryCourses.length} accentColor="var(--blue)" />
-              <StatCard label="Lab Courses"    value={labCourses.length}    accentColor="var(--blue-light)" />
+        <div className="dashboard-shell">
+          <section className="dashboard-main">
+            <div className="dashboard-overview-band anim-fade-up">
+              <div className="dashboard-overview-copy">
+                <span className="dashboard-overview-label">Current focus</span>
+                <h2>{activeBadge}</h2>
+                <p>
+                  Track theory and lab performance in one place, then jump straight into any course
+                  that needs attention.
+                </p>
+              </div>
+
+              <div className="dashboard-overview-chips">
+                <div className="overview-chip">
+                  <MdOutlineCheckCircle size={16} />
+                  <span>{trackedCourses.length} tracked courses</span>
+                </div>
+                <div className="overview-chip">
+                  <MdOutlineTimeline size={16} />
+                  <span>{activity.length} fresh updates</span>
+                </div>
+                <div className="overview-chip">
+                  <MdTrendingUp size={16} />
+                  <span>{theoryCourses.length} theory and {labCourses.length} lab</span>
+                </div>
+              </div>
             </div>
 
-            {/* Course Cards */}
+            <div className="stats-grid anim-fade-up delay-1">
+              <StatCard
+                label="Total Courses"
+                value={courses.length}
+                sub="Everything currently in rotation"
+                accentColor="var(--navy)"
+              />
+              <StatCard
+                label="Theory Courses"
+                value={theoryCourses.length}
+                sub="Lecture-heavy subjects and core modules"
+                accentColor="var(--blue)"
+              />
+              <StatCard
+                label="Lab Courses"
+                value={labCourses.length}
+                sub="Practical sessions, reports, and projects"
+                accentColor="var(--blue-light)"
+              />
+            </div>
+
             {courses.length === 0 ? (
               <EmptyState
-                icon="📚"
+                icon="Courses"
                 title="No courses yet"
-                description="Go to the semester page to add your courses."
+                description="Go to the semester page to add your first course and bring the dashboard to life."
                 action={
                   <button className="btn btn-outline" onClick={() => navigate(`/semesters/${activeSemester._id}`)}>
-                    <MdAdd size={15} /> Add Courses
+                    <MdAdd size={15} />
+                    Add Courses
                   </button>
                 }
               />
             ) : (
               <>
                 {theoryCourses.length > 0 && (
-                  <div className="anim-fade-up delay-2">
-                    <div className="flex items-center gap-2 mb-4">
-                      <MdBook size={16} style={{ color: 'var(--navy)' }} />
-                      <h2 style={{ fontSize: 18, fontWeight: 700 }}>Theory Courses</h2>
-                      <span className="badge badge-slate">{theoryCourses.length}</span>
+                  <section className="dashboard-course-section anim-fade-up delay-2">
+                    <div className="dashboard-section-head">
+                      <div>
+                        <div className="dashboard-section-kicker">
+                          <MdBook size={15} />
+                          Theory Cluster
+                        </div>
+                        <h2>Theory Courses</h2>
+                      </div>
+                      <span className="dashboard-section-count">{theoryCourses.length}</span>
                     </div>
-                    <div className="courses-grid mb-6">
-                      {theoryCourses.map((c, i) => (
-                        <div key={c._id} className={`delay-${i + 1} anim-fade-up`}>
-                          <CourseOverviewCard course={c} />
+
+                    <div className="courses-grid">
+                      {theoryCourses.map((course, index) => (
+                        <div key={course._id} className={`delay-${(index % 5) + 1} anim-fade-up`}>
+                          <CourseOverviewCard course={course} />
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </section>
                 )}
 
                 {labCourses.length > 0 && (
-                  <div className="anim-fade-up delay-3">
-                    <div className="flex items-center gap-2 mb-4">
-                      <MdScience size={16} style={{ color: 'var(--blue)' }} />
-                      <h2 style={{ fontSize: 18, fontWeight: 700 }}>Lab Courses</h2>
-                      <span className="badge badge-blue">{labCourses.length}</span>
+                  <section className="dashboard-course-section anim-fade-up delay-3">
+                    <div className="dashboard-section-head">
+                      <div>
+                        <div className="dashboard-section-kicker dashboard-section-kicker-lab">
+                          <MdScience size={15} />
+                          Lab Cluster
+                        </div>
+                        <h2>Lab Courses</h2>
+                      </div>
+                      <span className="dashboard-section-count">{labCourses.length}</span>
                     </div>
+
                     <div className="courses-grid">
-                      {labCourses.map((c, i) => (
-                        <div key={c._id} className={`delay-${i + 1} anim-fade-up`}>
-                          <CourseOverviewCard course={c} />
+                      {labCourses.map((course, index) => (
+                        <div key={course._id} className={`delay-${(index % 5) + 1} anim-fade-up`}>
+                          <CourseOverviewCard course={course} />
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </section>
                 )}
               </>
             )}
-          </div>
+          </section>
 
-          {/* Right Rail: Activity */}
-          <div className="anim-fade-up delay-4">
-            <div className="flex items-center gap-2 mb-4">
-              <MdHistory size={18} style={{ color: 'var(--text-muted)' }} />
-              <h2 style={{ fontSize: 16, fontWeight: 700 }}>Recent Activity</h2>
-            </div>
-            
-            <div className="card" style={{ background: '#fff' }}>
-              <div className="card-body-sm" style={{ padding: '8px 0' }}>
+          <aside className="dashboard-rail anim-fade-up delay-4">
+            <div className="dashboard-rail-section">
+              <div className="dashboard-rail-head">
+                <div className="dashboard-section-kicker dashboard-section-kicker-muted">
+                  <MdHistory size={15} />
+                  Live feed
+                </div>
+                <h2>Recent Activity</h2>
+              </div>
+
+              <div className="activity-panel">
                 {activity.length === 0 ? (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-faint)', fontSize: 13 }}>
-                    No recent activity
-                  </div>
+                  <div className="activity-empty">No recent activity yet. New attendance, lab, and marks updates will appear here.</div>
                 ) : (
-                  activity.map((act, i) => (
-                    <div key={i} className="flex items-start gap-3" style={{
-                      padding: '14px 16px',
-                      borderBottom: i === activity.length - 1 ? 'none' : '1px solid var(--border)',
-                    }}>
-                      <div style={{
-                        width: 32, height: 32, background: 'var(--blue-mist)', borderRadius: '50%',
-                        display: 'flex', alignItems: 'center', justifyCenter: 'center',
-                        color: 'var(--blue)', fontSize: 16, flexShrink: 0
-                      }}>
-                        <div style={{ display: 'flex', width: '100%', justifyContent: 'center'}}>{act.actIcon}</div>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="flex justify-between items-start">
-                          <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }} className="truncate">
-                            {act.actType === 'Attendance' ? (act.status === 'present' ? 'Attended Class' : 'Missed Class')
-                             : act.actType === 'Lab' ? `Lab ${act.labNumber} updated`
-                             : `${act.title} graded`}
-                          </p>
-                          <span style={{ fontSize: 10, color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>
-                            {moment(act.updatedAt).fromNow(true)}
-                          </span>
+                  activity.map((item, index) => (
+                    <div key={index} className="activity-row">
+                      <div className="activity-icon">{item.actIcon}</div>
+                      <div className="activity-copy">
+                        <div className="activity-row-top">
+                          <p>{getActivityCopy(item)}</p>
+                          <span>{moment(item.updatedAt).fromNow(true)}</span>
                         </div>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }} className="truncate">
-                          {act.courseName}
-                        </p>
+                        <small>{item.courseName}</small>
                       </div>
                     </div>
                   ))
                 )}
-              </div>
-              <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', background: 'var(--surface)', borderBottomLeftRadius: 'var(--radius-lg)', borderBottomRightRadius: 'var(--radius-lg)' }}>
-                <button 
-                  className="btn btn-ghost btn-xs w-full" 
-                  style={{ justifyContent: 'center', color: 'var(--blue)' }}
+
+                <button
+                  className="activity-footer-link"
+                  type="button"
                   onClick={() => navigate('/semesters')}
                 >
-                  View all courses <MdArrowForward size={12} />
+                  View all courses
+                  <MdArrowForward size={14} />
                 </button>
               </div>
             </div>
 
-            {/* Quote / Motif */}
-            <div style={{ 
-              marginTop: 32, padding: '24px', borderRadius: 'var(--radius-lg)', 
-              background: 'var(--navy)', color: 'rgba(255,255,255,0.7)',
-              position: 'relative', overflow: 'hidden'
-            }} className="dot-grid">
-              <p style={{ fontStyle: 'italic', fontSize: 14, position: 'relative', zIndex: 1, color: '#fff' }}>
+            <div className="dashboard-quote-card">
+              <p>
                 "An investment in knowledge pays the best interest."
               </p>
-              <p style={{ fontSize: 11, marginTop: 8, position: 'relative', zIndex: 1, opacity: 0.6 }}>
-                &mdash; Benjamin Franklin
-              </p>
+              <span>Benjamin Franklin</span>
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </div>
