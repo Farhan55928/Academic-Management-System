@@ -12,6 +12,9 @@ import labRoutes from './src/routes/labRoutes.js';
 import marksRoutes from './src/routes/marksRoutes.js';
 import expenseRoutes from './src/routes/expenseRoutes.js';
 import monthRoutes from './src/routes/monthRoutes.js';
+import studyDayRoutes from './src/routes/studyDayRoutes.js';
+import studySessionRoutes from './src/routes/studySessionRoutes.js';
+import dayOverviewRoutes from './src/routes/dayOverviewRoutes.js';
 
 // Standalone routes (for update/delete by ID, not nested)
 import { protect } from './src/middleware/authMiddleware.js';
@@ -19,6 +22,7 @@ import { updateCourse, deleteCourse } from './src/controllers/courseController.j
 import { updateAttendance, deleteAttendance } from './src/controllers/attendanceController.js';
 import { updateLab, deleteLab } from './src/controllers/labController.js';
 import { updateMarks, deleteMarks } from './src/controllers/marksController.js';
+import { updateSession, deleteSession } from './src/controllers/studySessionController.js';
 
 dotenv.config();
 
@@ -69,6 +73,16 @@ app.delete('/api/marks/:id', protect, deleteMarks);
 // ─── Expenses ─────────────────────────────────────────
 app.use('/api/months', monthRoutes);
 app.use('/api/expenses', expenseRoutes);
+
+// ─── Study Management ─────────────────────────────────
+app.use('/api/study/days', studyDayRoutes);
+app.use('/api/study/days/:dayId/sessions', studySessionRoutes);
+app.use('/api/study/days/:dayId/overview', dayOverviewRoutes);
+
+// ─── Study Sessions (standalone for PUT/DELETE) ───────
+app.put('/api/study/sessions/:id', protect, updateSession);
+app.delete('/api/study/sessions/:id', protect, deleteSession);
+
 
 // ─── Start ────────────────────────────────────────────
 connectDB().then(() => {

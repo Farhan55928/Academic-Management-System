@@ -10,6 +10,8 @@ import SemesterDetailPage from './pages/Semesters/SemesterDetailPage.jsx';
 import CourseDetailPage from './pages/Courses/CourseDetailPage.jsx';
 import MonthsPage from './pages/Expenses/MonthsPage.jsx';
 import ExpensesPage from './pages/Expenses/ExpensesPage.jsx';
+import StudyDaysPage from './pages/Study/StudyDaysPage.jsx';
+import StudyDayDetailPage from './pages/Study/StudyDayDetailPage.jsx';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -44,6 +46,8 @@ function AppRoutes() {
           <Route path="/courses/:courseId"          element={<CourseDetailPage />} />
           <Route path="/expenses"                  element={<MonthsPage />} />
           <Route path="/expenses/:monthId"         element={<ExpensesPage />} />
+          <Route path="/study"                     element={<StudyDaysPage />} />
+          <Route path="/study/:dayId"              element={<StudyDayDetailPage />} />
           <Route path="*"                          element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
