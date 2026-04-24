@@ -231,9 +231,55 @@ export default function StudyDayDetailPage() {
       </div>
 
       {/* ── Content ───────────────────────────────── */}
-      <div style={{ padding: '48px', marginTop: -32, position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: overview ? '1fr 360px' : '1fr', gap: 28, alignItems: 'start' }}>
+      <div style={{ padding: '48px', marginTop: -32, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 28 }}>
 
-        {/* ── Sessions ─────────────────────────────── */}
+        {/* ── Day Overview Panel ───────────────────── */}
+        {overview && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', margin: 0 }}>Day Overview</h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={openOverviewModal} style={{ background: '#eff6ff', border: 'none', borderRadius: 10, padding: '7px 12px', color: '#3b82f6', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
+                  Edit
+                </button>
+                <button onClick={handleDeleteOverview} style={{ background: '#fff5f5', border: 'none', borderRadius: 10, padding: '7px 12px', color: '#ef4444', cursor: 'pointer' }}>
+                  <MdDelete size={15} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'stretch' }}>
+              {/* Rating */}
+              <div style={{ padding: '24px', borderRight: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ background: 'linear-gradient(135deg, #1a2f5e, #3b82f6)', borderRadius: 16, padding: 14 }}>
+                  <MdStar size={24} color="#fbbf24" />
+                </div>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 4px' }}>Day Rating</p>
+                  <RatingBadge rating={overview.rating} />
+                </div>
+              </div>
+
+              {/* Reflection */}
+              <div style={{ padding: '20px 24px', borderRight: '1px solid #f1f5f9' }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>📝 Reflection</p>
+                <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, margin: 0 }}>
+                  {overview.reflection || <span style={{ color: '#94a3b8' }}>No reflection written.</span>}
+                </p>
+              </div>
+
+              {/* Improve Zone */}
+              <div style={{ padding: '20px 24px' }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>🚀 Improve Zone</p>
+                <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, margin: 0 }}>
+                  {overview.improveZone || <span style={{ color: '#94a3b8' }}>No improvement notes.</span>}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Study Sessions ───────────────────────── */}
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', marginBottom: 20 }}>
             Study Sessions
@@ -320,9 +366,11 @@ export default function StudyDayDetailPage() {
                                 </span>
                               )}
                             </div>
-                            <p style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '2px 0' }}>
-                              {block.topic || <span style={{ color: '#94a3b8' }}>No topic set</span>}
-                            </p>
+                            {!block.wasted && (
+                              <p style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', margin: '2px 0' }}>
+                                {block.topic || <span style={{ color: '#94a3b8' }}>No topic set</span>}
+                              </p>
+                            )}
                             {block.note && <p style={{ fontSize: 13, color: '#64748b', margin: '2px 0 0' }}>{block.note}</p>}
                           </div>
                         </div>
@@ -334,56 +382,6 @@ export default function StudyDayDetailPage() {
             </div>
           )}
         </div>
-
-        {/* ── Day Overview Panel ───────────────────── */}
-        {overview && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', margin: 0 }}>Day Overview</h2>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={openOverviewModal} style={{ background: '#eff6ff', border: 'none', borderRadius: 10, padding: '7px 12px', color: '#3b82f6', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
-                  Edit
-                </button>
-                <button onClick={handleDeleteOverview} style={{ background: '#fff5f5', border: 'none', borderRadius: 10, padding: '7px 12px', color: '#ef4444', cursor: 'pointer' }}>
-                  <MdDelete size={15} />
-                </button>
-              </div>
-            </div>
-
-            <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
-              {/* Rating */}
-              <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ background: 'linear-gradient(135deg, #1a2f5e, #3b82f6)', borderRadius: 16, padding: 14 }}>
-                  <MdStar size={24} color="#fbbf24" />
-                </div>
-                <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 4px' }}>Day Rating</p>
-                  <RatingBadge rating={overview.rating} />
-                </div>
-              </div>
-
-              {/* Reflection */}
-              <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9' }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>
-                  📝 Reflection
-                </p>
-                <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, margin: 0 }}>
-                  {overview.reflection || <span style={{ color: '#94a3b8' }}>No reflection written.</span>}
-                </p>
-              </div>
-
-              {/* Improve Zone */}
-              <div style={{ padding: '20px 24px' }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 10 }}>
-                  🚀 Improve Zone
-                </p>
-                <p style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, margin: 0 }}>
-                  {overview.improveZone || <span style={{ color: '#94a3b8' }}>No improvement notes.</span>}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ══ Session Modal ════════════════════════════════════════ */}
@@ -469,7 +467,7 @@ export default function StudyDayDetailPage() {
                               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, marginBottom: 10 }}>
                                 <input
                                   className="glass-input"
-                                  style={{ fontSize: 14, padding: '12px 16px' }}
+                                  style={{ fontSize: 14, padding: '12px 16px', width: '100%', boxSizing: 'border-box' }}
                                   placeholder="What did you study this hour?"
                                   value={block.topic}
                                   onChange={e => updateBlock('topic', e.target.value)}
@@ -478,7 +476,7 @@ export default function StudyDayDetailPage() {
                               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14 }}>
                                 <input
                                   className="glass-input"
-                                  style={{ fontSize: 14, padding: '12px 16px' }}
+                                  style={{ fontSize: 14, padding: '12px 16px', width: '100%', boxSizing: 'border-box' }}
                                   placeholder="Optional note..."
                                   value={block.note}
                                   onChange={e => updateBlock('note', e.target.value)}
