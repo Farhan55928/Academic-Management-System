@@ -1074,8 +1074,9 @@ tbody td {
 /* ─── Course Cards ────────────────────────────────────────── */
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 22px;
+  align-items: stretch;
 }
 
 .course-card {
@@ -1236,7 +1237,9 @@ tbody td {
 }
 
 .course-spotlight-copy {
-  min-height: 138px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
 }
 
 .course-spotlight-code {
@@ -1249,14 +1252,16 @@ tbody td {
 }
 
 .course-spotlight-copy h3 {
-  font-size: 29px;
+  font-size: 26px;
   letter-spacing: -0.03em;
-  line-height: 1.05;
-  min-height: 2.1em;
+  line-height: 1.1;
+  min-height: 2.2em;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .course-spotlight-status {

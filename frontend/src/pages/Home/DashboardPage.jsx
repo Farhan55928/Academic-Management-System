@@ -78,7 +78,7 @@ function CourseOverviewCard({ course }) {
 
   const tone = getAttendanceTone(stats.pct);
   const attendanceColor = getAttendanceColor(stats.pct);
-  const attendanceWidth = stats.pct === null ? 14 : Math.max(stats.pct, 12);
+  const attendanceWidth = stats.pct === null ? 0 : stats.pct;
 
   return (
     <button
