@@ -82,9 +82,8 @@ export default function StudyDaysPage() {
     <div style={{ minHeight: '100vh', background: '#f0f4f9' }}>
 
       {/* ── Hero Header ─────────────────────────────── */}
-      <div style={{
+      <div className="hero-section" style={{
         background: 'linear-gradient(135deg, #0f1e3c 0%, #1a2f5e 60%, #1e3a6e 100%)',
-        padding: '48px 48px 80px',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -116,7 +115,7 @@ export default function StudyDaysPage() {
           </div>
 
           {/* ── Stats Bar ─────────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 36 }}>
+          <div className="stats-grid" style={{ marginTop: 36 }}>
             {[
               { label: 'Total Days Logged', value: stats.totalDays, icon: '📅' },
               { label: 'Days This Week', value: stats.thisWeek, icon: '🔥' },
@@ -139,7 +138,7 @@ export default function StudyDaysPage() {
       </div>
 
       {/* ── Days Grid ──────────────────────────────── */}
-      <div style={{ padding: '48px', marginTop: -40, position: 'relative', zIndex: 1 }}>
+      <div className="content-section" style={{ marginTop: -40, position: 'relative', zIndex: 1 }}>
 
         {days.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: 28, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>

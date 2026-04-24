@@ -108,9 +108,8 @@ export default function ExpensesPage() {
       <div style={{ minHeight: '100vh', background: '#f0f4f9' }}>
 
         {/* ── Hero ─────────────────────────────────────── */}
-        <div style={{
+        <div className="hero-section" style={{
           background: 'linear-gradient(135deg, #0f1e3c 0%, #1a2f5e 60%, #1e3a6e 100%)',
-          padding: '40px 48px 48px',
           position: 'relative', overflow: 'hidden',
         }}>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
@@ -138,9 +137,9 @@ export default function ExpensesPage() {
           </div>
         </div>
 
-        <div style={{ padding: '32px 48px 60px' }}>
+        <div className="content-section" style={{ paddingBottom: 60 }}>
           {/* ── Summary Cards ─────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 36 }}>
+          <div className="stats-grid" style={{ marginBottom: 36 }}>
             <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #3b82f6' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Monthly Total</p>
               <p style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>৳{monthlyTotal.toLocaleString()}</p>

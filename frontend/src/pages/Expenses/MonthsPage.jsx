@@ -62,9 +62,8 @@ export default function MonthsPage() {
       <div style={{ minHeight: '100vh', background: '#f0f4f9' }}>
 
         {/* ── Hero Header ─────────────────────────────── */}
-        <div style={{
+        <div className="hero-section" style={{
           background: 'linear-gradient(135deg, #0f1e3c 0%, #1a2f5e 60%, #1e3a6e 100%)',
-          padding: '48px 48px 80px',
           position: 'relative',
           overflow: 'hidden',
         }}>
@@ -121,7 +120,7 @@ export default function MonthsPage() {
         </div>
 
         {/* ── Month Cards ─────────────────────────────── */}
-        <div style={{ padding: '0 48px 48px', marginTop: -36 }}>
+        <div className="content-section-no-top" style={{ marginTop: -36 }}>
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
               <div className="loading loading-spinner loading-lg text-blue" />
@@ -136,7 +135,7 @@ export default function MonthsPage() {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+            <div className="months-grid" style={{ gap: 24 }}>
               {months.map((m, i) => (
                 <MonthCard
                   key={m._id}

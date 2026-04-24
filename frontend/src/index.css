@@ -1638,3 +1638,237 @@ tbody td {
     align-items: start;
   }
 }
+
+/* ─── Shared Layout Classes ────────────────────────────── */
+.hero-section {
+  padding: 48px 48px 80px;
+}
+
+.content-section {
+  padding: 48px;
+}
+
+.content-section-no-top {
+  padding: 0 48px 48px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.months-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ─── Mobile Topbar & Sidebar Drawer ─────────────────────── */
+.mobile-topbar {
+  display: none;
+}
+
+.mobile-hamburger {
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.sidebar-drawer {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+/* ─── Full Mobile Responsive (≤768px) ──────────────────────── */
+@media (max-width: 768px) {
+
+  /* ── Topbar ───────────────────────────────── */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    z-index: 200;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  /* ── Desktop sidebar hidden, drawer shown ─ */
+  .sidebar:not(.sidebar-drawer) {
+    display: none;
+  }
+
+  .sidebar-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .sidebar-drawer.sidebar-drawer-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.45);
+    z-index: 250;
+    backdrop-filter: blur(2px);
+  }
+
+  /* ── Main content offset for topbar ─────── */
+  .main-content {
+    margin-left: 0;
+    padding-top: 56px;
+  }
+
+  /* ── Page wrapper ─────────────────────── */
+  .page-wrapper {
+    padding: 20px 16px;
+  }
+
+  /* ── Page header ─────────────────────── */
+  .page-header { padding-bottom: 16px; margin-bottom: 20px; }
+  .page-header-top { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-header-top h1 { font-size: 26px; }
+  .page-header-actions { width: 100%; }
+  .page-header-actions .btn { width: 100%; justify-content: center; }
+
+  /* ── Stats grid ───────────────────────── */
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+
+  /* ── Dashboard ────────────────────────── */
+  .dashboard-shell { grid-template-columns: 1fr; }
+  .dashboard-overview-band { flex-direction: column; gap: 16px; padding: 20px; }
+  .dashboard-overview-chips { width: 100%; flex-wrap: wrap; }
+  .dashboard-rail { display: block; }
+  .dashboard-section-head,
+  .dashboard-rail-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .dashboard-section-count { font-size: 22px; }
+
+  /* ── Course cards ─────────────────────── */
+  .courses-grid { grid-template-columns: 1fr; gap: 14px; }
+  .course-spotlight-copy h3 { font-size: 22px; }
+  .course-spotlight-card { padding: 18px; border-radius: 20px; }
+  .course-spotlight-footer { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .course-spotlight-link { justify-self: start; }
+
+  /* ── Modals (glass style used in Study/Expense) ─ */
+  .glass-modal,
+  [style*="maxWidth: 420"],
+  [style*="maxWidth: 520"],
+  [style*="maxWidth: 560"],
+  [style*="maxWidth: 620"] {
+    border-radius: 20px !important;
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 16px !important;
+  }
+
+  /* ── Modals: fixed position overlay centers them properly ─ */
+  [style*="position: fixed"][style*="alignItems: center"] {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  [style*="position: fixed"][style*="alignItems: flex-end"] > div {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 90vh;
+  }
+
+  /* ── Hero Sections ─────────────── */
+  .hero-section {
+    padding: 20px 16px 60px !important;
+  }
+
+  /* ── Content Sections ────────── */
+  .content-section {
+    padding: 20px 16px !important;
+  }
+
+  /* ── Stats Grids ──────────────── */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* ── Study day detail page overview grid ── */
+  [style*="gridTemplateColumns: '1fr 1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Month/Expense hero sections ─────────── */
+  .expense-hero,
+  .months-hero {
+    padding: 20px 16px 60px !important;
+  }
+
+  /* ── Expense list row wrapping ─────────── */
+  .expense-row { flex-wrap: wrap; gap: 8px; }
+
+  /* ── Semester/Course detail sections ─────── */
+  .semester-detail-grid,
+  .course-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Tabs ─────────────────────────────── */
+  .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+  .tab-btn { white-space: nowrap; font-size: 13px; padding: 8px 14px; }
+
+  /* ── Buttons full-width in some contexts ─ */
+  .btn { min-height: 42px; }
+
+  /* ── Glass input width fix on mobile ──── */
+  .glass-input { font-size: 16px !important; } /* prevents iOS auto-zoom */
+
+  /* ── Hour blocks rating grid ─────────── */
+  [style*="display: 'flex'"][style*="gap: 8"] button[style*="width: 38"] {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ─── Very small screens (≤400px) ─────────────────────────── */
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .course-spotlight-footer { grid-template-columns: 1fr; }
+}
+

@@ -1,7 +1,8 @@
 import axios from 'axios';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const axiosSecure = axios.create({
-  baseURL: 'http://localhost:9000',
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 18000,
   headers: { 'X-Custom-Header': 'foobar' },
 });

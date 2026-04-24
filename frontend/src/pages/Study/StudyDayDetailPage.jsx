@@ -174,9 +174,8 @@ export default function StudyDayDetailPage() {
     <div style={{ minHeight: '100vh', background: '#f0f4f9' }}>
 
       {/* ── Hero Header ──────────────────────────────── */}
-      <div style={{
+      <div className="hero-section" style={{
         background: 'linear-gradient(135deg, #0f1e3c 0%, #1a2f5e 60%, #1e3a6e 100%)',
-        padding: '40px 48px 72px',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -212,7 +211,7 @@ export default function StudyDayDetailPage() {
           </div>
 
           {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 32 }}>
+          <div className="stats-grid" style={{ marginTop: 32 }}>
             {[
               { label: 'Total Hours', value: stats.totalHours + 'h', icon: <MdTimer size={22} color="rgba(96,165,250,0.8)" /> },
               { label: 'Productive Hours', value: stats.productiveHours + 'h', icon: <MdTrendingUp size={22} color="rgba(34,197,94,0.8)" /> },
@@ -231,7 +230,7 @@ export default function StudyDayDetailPage() {
       </div>
 
       {/* ── Content ───────────────────────────────── */}
-      <div style={{ padding: '48px', marginTop: -32, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 28 }}>
+      <div className="content-section" style={{ marginTop: -32, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 28 }}>
 
         {/* ── Day Overview Panel ───────────────────── */}
         {overview && (
