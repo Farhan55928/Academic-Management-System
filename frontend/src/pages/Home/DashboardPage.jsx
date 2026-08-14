@@ -15,11 +15,7 @@ import {
 } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
-import { getSemesters } from '../../api/semesters.js';
-import { getCourses } from '../../api/courses.js';
-import { getAttendance } from '../../api/attendance.js';
-import { getLabs } from '../../api/labs.js';
-import { getMarks } from '../../api/marks.js';
+import { getDashboard } from '../../api/dashboard.js';
 import PageHeader from '../../components/UI/PageHeader.jsx';
 import StatCard from '../../components/UI/StatCard.jsx';
 import EmptyState from '../../components/UI/EmptyState.jsx';
@@ -52,29 +48,21 @@ function getActivityCopy(activity) {
   if (activity.actType === 'Attendance') {
     return activity.status === 'present' ? 'Attended class' : 'Missed class';
   }
-
   if (activity.actType === 'Lab') {
     return `Lab ${activity.labNumber} updated`;
   }
-
   return `${activity.title} graded`;
 }
 
-function CourseOverviewCard({ course }) {
-  const [stats, setStats] = useState({ total: 0, present: 0, pct: null });
-  const navigate = useNavigate();
+function getActivityIcon(actType) {
+  if (actType === 'Attendance') return <MdCalendarToday />;
+  if (actType === 'Lab') return <MdScience />;
+  return <MdAutoGraph />;
+}
 
-  useEffect(() => {
-    getAttendance(course._id)
-      .then((res) => {
-        const records = res.data;
-        const total = records.length;
-        const present = records.filter((record) => record.status === 'present').length;
-        const pct = total > 0 ? Math.round((present / total) * 100) : null;
-        setStats({ total, present, pct });
-      })
-      .catch(() => {});
-  }, [course._id]);
+function CourseOverviewCard({ course }) {
+  const navigate = useNavigate();
+  const { stats } = course;
 
   const tone = getAttendanceTone(stats.pct);
   const attendanceColor = getAttendanceColor(stats.pct);
@@ -150,71 +138,23 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const activeSemester = semesters.find((semester) => semester.isActive) || semesters[0] || null;
+  const activeSemester = semesters.find((s) => s.isActive) || semesters[0] || null;
 
   useEffect(() => {
-    getSemesters()
-      .then((res) => setSemesters(res.data))
-      .catch(() => toast.error('Failed to load semesters'))
+    getDashboard()
+      .then((res) => {
+        const { semesters: sem, courses: crs, activity: act } = res.data;
+        setSemesters(sem);
+        setCourses(crs);
+        setActivity(act);
+      })
+      .catch(() => toast.error('Failed to load dashboard'))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!activeSemester) return;
-
-    getCourses(activeSemester._id)
-      .then(async (res) => {
-        const courseList = res.data;
-        setCourses(courseList);
-
-        const activities = [];
-
-        for (const course of courseList) {
-          try {
-            const [attendance, labs, marks] = await Promise.all([
-              getAttendance(course._id),
-              getLabs(course._id),
-              getMarks(course._id),
-            ]);
-
-            attendance.data.forEach((record) =>
-              activities.push({
-                ...record,
-                courseName: course.name,
-                actType: 'Attendance',
-                actIcon: <MdCalendarToday />,
-              })
-            );
-            labs.data.forEach((record) =>
-              activities.push({
-                ...record,
-                courseName: course.name,
-                actType: 'Lab',
-                actIcon: <MdScience />,
-              })
-            );
-            marks.data.forEach((record) =>
-              activities.push({
-                ...record,
-                courseName: course.name,
-                actType: 'Marks',
-                actIcon: <MdAutoGraph />,
-              })
-            );
-          } catch {
-            // Keep the dashboard resilient even if one course payload fails.
-          }
-        }
-
-        activities.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-        setActivity(activities.slice(0, 5));
-      })
-      .catch(() => {});
-  }, [activeSemester?._id]);
-
-  const theoryCourses = courses.filter((course) => course.type === 'theory');
-  const labCourses = courses.filter((course) => course.type === 'lab');
-  const trackedCourses = courses.filter((course) => course.type === 'theory' || course.type === 'lab');
+  const theoryCourses = courses.filter((c) => c.type === 'theory');
+  const labCourses = courses.filter((c) => c.type === 'lab');
+  const trackedCourses = courses.filter((c) => c.type === 'theory' || c.type === 'lab');
   const activeBadge = activeSemester ? `${activeSemester.name} ${activeSemester.year}` : 'No active semester';
 
   if (loading) {
@@ -385,7 +325,7 @@ export default function DashboardPage() {
                 ) : (
                   activity.map((item, index) => (
                     <div key={index} className="activity-row">
-                      <div className="activity-icon">{item.actIcon}</div>
+                      <div className="activity-icon">{getActivityIcon(item.actType)}</div>
                       <div className="activity-copy">
                         <div className="activity-row-top">
                           <p>{getActivityCopy(item)}</p>

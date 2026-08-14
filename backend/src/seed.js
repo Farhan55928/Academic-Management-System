@@ -15,8 +15,8 @@ const seed = async () => {
     await mongoose.connect(process.env.Mongo_URI);
     console.log('Connected to MongoDB ✅');
 
-    const email = 'farhankhan@iut-dhaka.edu';
-    const password = '220041229';
+    const email = 'Fahim@gmail.com';
+    const password = 'Fahim123$';
 
     const existing = await User.findOne({ email });
 

@@ -100,6 +100,10 @@ input, textarea, select { font-family: var(--font-body); }
   from { opacity: 0; transform: scale(0.95); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 .anim-fade-up    { animation: fadeUp 0.4s ease both; }
 .anim-fade-in    { animation: fadeIn 0.3s ease both; }
@@ -1872,3 +1876,210 @@ tbody td {
   .course-spotlight-footer { grid-template-columns: 1fr; }
 }
 
+
+/* ─── Academic Backlog ────────────────────────────────────── */
+/* Visual styling lives inline in the page components (matching the Expenses
+   pages). Only structure and the print sheet are handled here. */
+
+.backlog-body.is-collapsed { display: none; }
+
+/* Touch devices have no hover, so keep the hover-revealed row actions visible */
+@media (hover: none) {
+  .backlog-section-header .no-print > div,
+  .backlog-subsection-header .no-print,
+  .backlog-step .no-print { opacity: 1 !important; }
+}
+
+/* ─── Print: clean A4/Letter checklist sheet ─────────────── */
+@media print {
+  /* ── Hide all chrome that makes no sense on paper ── */
+  .sidebar,
+  .sidebar-drawer,
+  .sidebar-overlay,
+  .mobile-topbar,
+  .no-print,
+  .backlog-caret,
+  .backlog-stripe,
+  .backlog-rail,
+  .backlog-step-add { display: none !important; }
+
+  /* ── Page setup ── */
+  @page { margin: 16mm 14mm; size: A4 portrait; }
+
+  html, body, .app-layout, .main-content {
+    background: #fff !important;
+    color: #0f172a !important;
+  }
+  .backlog-page  { background: #fff !important; min-height: 0 !important; }
+  .app-layout    { display: block !important; }
+  .main-content  { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+  /* ── Hero → compact printed header ── */
+  .hero-section {
+    background: none !important;
+    padding: 0 0 8px !important;
+    border-bottom: 2.5px solid #0f172a !important;
+    margin-bottom: 12px !important;
+  }
+  .hero-section * { color: #0f172a !important; background: none !important; }
+  .hero-section h1 {
+    font-size: 22pt !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1 !important;
+    margin-bottom: 3px !important;
+  }
+  .hero-section p {
+    font-size: 8.5pt !important;
+    color: #475569 !important;
+  }
+
+  .content-section { padding: 0 !important; }
+
+  /* ── Expand everything for print ── */
+  .backlog-body.is-collapsed { display: block !important; }
+
+  /* ── Three-column balanced layout ── */
+  .backlog-tree {
+    display: block !important;
+    columns: 3 !important;
+    column-gap: 12px !important;
+    column-fill: balance !important;
+  }
+
+  /* ── Section card ── */
+  .backlog-section {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin: 0 0 8px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+  }
+
+  .backlog-section-header {
+    padding: 5px 8px !important;
+    gap: 5px !important;
+    background: #f8fafd !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
+  .backlog-section-header h3 {
+    font-size: 9.5pt !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+  }
+  .backlog-section-meta { display: none !important; }
+  .backlog-section .backlog-body { padding: 0 0 4px !important; }
+
+  /* Number badge → compact numeral */
+  .backlog-section-badge {
+    width: auto !important; height: auto !important;
+    background: none !important; box-shadow: none !important;
+    border-radius: 0 !important; padding: 0 !important;
+    min-width: 0 !important;
+  }
+  .backlog-section-badge span {
+    font-size: 9pt !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+  }
+
+  /* ── Subsection row ── */
+  .backlog-subsection {
+    border: none !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+  .backlog-subsection-header {
+    padding: 4px 8px !important;
+    gap: 5px !important;
+    background: none !important;
+  }
+  .backlog-subsection-title {
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    color: #1e293b !important;
+  }
+  .backlog-subsection .backlog-body {
+    padding: 0 8px 4px 26px !important;
+  }
+
+  /* ── Step row ── */
+  .backlog-step {
+    padding: 1px 0 !important;
+    gap: 5px !important;
+    background: none !important;
+  }
+  .backlog-step-title {
+    font-size: 8pt !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* ── Checkboxes — Unicode squares print on every browser/OS ── */
+  .backlog-check {
+    width: auto !important; height: auto !important;
+    min-width: 0 !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+  }
+  .backlog-check svg { display: none !important; }
+
+  /* Unchecked */
+  .backlog-check::before {
+    content: '☐';
+    font-size: 11pt;
+    color: #475569;
+    line-height: 1;
+  }
+  /* Checked subsection */
+  .is-done > .backlog-subsection-header > .backlog-check::before {
+    content: '☑';
+    color: #15803d;
+  }
+  /* Checked step */
+  .backlog-step.is-done > .backlog-check::before {
+    content: '☑';
+    color: #15803d;
+  }
+  /* Checked section (header-level) */
+  .backlog-section.is-done > .backlog-section-header > .backlog-check::before {
+    content: '☑';
+    color: #15803d;
+  }
+
+  /* Strikethrough for completed text */
+  .backlog-step.is-done .backlog-step-title {
+    text-decoration: line-through !important;
+    color: #94a3b8 !important;
+  }
+
+  /* Priority badge → compact tag */
+  .priority-badge {
+    font-size: 6.5pt !important;
+    padding: 1px 4px !important;
+    border-radius: 2px !important;
+  }
+
+  /* Progress counter next to subsection title */
+  .backlog-subsection-progress {
+    font-size: 7.5pt !important;
+    color: #64748b !important;
+  }
+
+  /* Suppress link decoration browsers inject */
+  a[href]::after { content: none !important; }
+}

@@ -15,6 +15,8 @@ import monthRoutes from './src/routes/monthRoutes.js';
 import studyDayRoutes from './src/routes/studyDayRoutes.js';
 import studySessionRoutes from './src/routes/studySessionRoutes.js';
 import dayOverviewRoutes from './src/routes/dayOverviewRoutes.js';
+import dashboardRoutes from './src/routes/dashboardRoutes.js';
+import backlogRoutes from './src/routes/backlogRoutes.js';
 
 // Standalone routes (for update/delete by ID, not nested)
 import { protect } from './src/middleware/authMiddleware.js';
@@ -35,6 +37,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Academic Management System API is running 🎓' });
 });
+
+// ─── Dashboard (aggregated) ───────────────────────────
+app.use('/api/dashboard', dashboardRoutes);
 
 // ─── Auth ─────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -82,6 +87,11 @@ app.use('/api/study/days/:dayId/overview', dayOverviewRoutes);
 // ─── Study Sessions (standalone for PUT/DELETE) ───────
 app.put('/api/study/sessions/:id', protect, updateSession);
 app.delete('/api/study/sessions/:id', protect, deleteSession);
+
+// ─── Academic Backlog ─────────────────────────────────
+// Every level shares the /api/backlog prefix, so the standalone PUT/DELETE
+// routes live inside backlogRoutes.js rather than being repeated here.
+app.use('/api/backlog', backlogRoutes);
 
 
 // ─── Start ────────────────────────────────────────────

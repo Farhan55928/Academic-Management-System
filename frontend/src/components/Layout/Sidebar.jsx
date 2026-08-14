@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import {
   MdDashboard, MdCalendarViewMonth, MdLogout,
   MdOutlineSchool, MdCircle, MdAccountBalanceWallet, MdMenuBook,
-  MdMenu, MdClose,
+  MdMenu, MdClose, MdChecklist,
 } from 'react-icons/md';
 import { getSemesters } from '../../api/semesters.js';
 
@@ -26,6 +26,7 @@ export default function Sidebar({ user, onLogout }) {
   const navLinks = [
     { to: '/',           label: 'Dashboard',     icon: <MdDashboard size={17} /> },
     { to: '/semesters',  label: 'Semesters',     icon: <MdCalendarViewMonth size={17} /> },
+    { to: '/backlog',    label: 'Backlog',       icon: <MdChecklist size={17} /> },
     { to: '/expenses',   label: 'Expense Log',   icon: <MdAccountBalanceWallet size={17} /> },
     { to: '/study',      label: 'Study Log',     icon: <MdMenuBook size={17} /> },
   ];
