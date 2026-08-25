@@ -101,7 +101,7 @@ export default function BacklogSubsectionRow({
         )}
 
         {total > 0 && (
-          <span style={{
+          <span className="no-print" style={{
             fontSize: 12, fontWeight: 800, color: '#64748b', fontVariantNumeric: 'tabular-nums',
             background: '#f1f5f9', padding: '4px 10px', borderRadius: 8, flexShrink: 0,
           }}>

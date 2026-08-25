@@ -289,7 +289,7 @@ export default function BacklogWeekDetailPage() {
                 <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 44, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 6 }}>
                   Week <span style={{ fontVariantNumeric: 'tabular-nums' }}>{week.weekNumber}</span>
                 </h1>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
+                <p className="no-print" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
                   {total > 0 ? `${done} of ${total} steps complete` : 'Nothing tracked yet — add a section to begin'}
                 </p>
               </div>

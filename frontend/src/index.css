@@ -1909,6 +1909,9 @@ tbody td {
   html, body, .app-layout, .main-content {
     background: #fff !important;
     color: #0f172a !important;
+    /* Both carry min-height: 100vh on screen; on paper that is a full blank
+       page floor under short weeks. */
+    min-height: 0 !important;
   }
   .backlog-page  { background: #fff !important; min-height: 0 !important; }
   .app-layout    { display: block !important; }
@@ -1943,20 +1946,43 @@ tbody td {
   .backlog-tree {
     display: block !important;
     columns: 3 !important;
-    column-gap: 12px !important;
-    column-fill: balance !important;
+    column-gap: 14px !important;
+    /*
+     * `balance` reserves a uniform column height for each page fragment before
+     * placing anything, so a card that gets deferred to the next page leaves
+     * the remaining columns of this one stranded empty. `auto` fills column 1
+     * to the bottom, then 2, then 3, then moves to the next page.
+     */
+    column-fill: auto !important;
+    orphans: 2;
+    widows: 2;
   }
 
   /* ── Section card ── */
+  /*
+   * FRAGMENTATION
+   * A section card is routinely taller than a whole column — a nine-subsection
+   * course runs past 100% of the column height. `break-inside: avoid` on a box
+   * that tall cannot be honoured: Chrome tries column 1, 2 and 3, fails in all
+   * three, then defers the card *and everything after it* to the next page,
+   * leaving the rest of the current page blank. Sections are therefore
+   * breakable; the subsection is the unit we actually keep whole.
+   */
   .backlog-section {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    /* Each fragment redraws its own border, so a card split across a column
+       boundary still reads as a closed box instead of one sliced open. */
+    -webkit-box-decoration-break: clone !important;
+    box-decoration-break: clone !important;
+    /* The inline `overflow: hidden` clips the card at the fragment boundary —
+       that is what cuts rows off mid-height. */
+    overflow: visible !important;
     margin: 0 0 8px !important;
     background: #fff !important;
     box-shadow: none !important;
     border: 1.5px solid #334155 !important;
     border-radius: 4px !important;
-    overflow: hidden !important;
   }
 
   .backlog-section-header {
@@ -1964,6 +1990,9 @@ tbody td {
     gap: 5px !important;
     background: #f8fafd !important;
     border-bottom: 1px solid #cbd5e1 !important;
+    /* Never strand a course heading alone at the bottom of a column */
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
   .backlog-section-header h3 {
     font-size: 9.5pt !important;
@@ -1973,7 +2002,8 @@ tbody td {
     line-height: 1.3 !important;
   }
   .backlog-section-meta { display: none !important; }
-  .backlog-section .backlog-body { padding: 0 0 4px !important; }
+  /* Give the body a little top breathing room and bottom padding */
+  .backlog-section .backlog-body { padding: 4px 0 6px !important; }
 
   /* Number badge → compact numeral */
   .backlog-section-badge {
@@ -1995,34 +2025,89 @@ tbody td {
     border-radius: 0 !important;
     box-shadow: none !important;
     background: none !important;
+    /* Extra space between consecutive subsections */
+    margin-bottom: 2px !important;
+    /* Small enough to always fit a column — keep it with its steps */
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
+
+  /*
+   * TITLE-OVERFLOW FIX
+   * On screen the subsection header is a single flex row:
+   *   [checkbox] [number] [title flex:1] [badge] [done/total]
+   * In a narrow print column (≈52mm) the title has no room and
+   * wraps mid-character ("Transfor\nm", "Submissi\non").
+   *
+   * Fix: allow the row to wrap, give the title 100% width on its own
+   * line, and hide the redundant done/total counter (the ☐ boxes
+   * already tell you what's left).
+   */
   .backlog-subsection-header {
-    padding: 4px 8px !important;
-    gap: 5px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: baseline !important;
+    gap: 3px 5px !important;
+    padding: 5px 8px 4px !important;
     background: none !important;
   }
+  /* [checkbox] and [number] sit on line 1 */
+  .backlog-subsection-header > .backlog-check {
+    flex-shrink: 0 !important;
+    align-self: center !important;
+    order: 1;
+  }
+  .backlog-subsection-header > span:not(.backlog-subsection-title) {
+    /* the "1.1" numbering span */
+    flex-shrink: 0 !important;
+    order: 2;
+  }
+  /* Title gets its own full-width second line */
   .backlog-subsection-title {
-    font-size: 8.5pt !important;
+    order: 3;
+    width: 100% !important;
+    flex-basis: 100% !important;
+    font-size: 8pt !important;
     font-weight: 700 !important;
     text-decoration: none !important;
     color: #1e293b !important;
+    /* Wrap at word boundaries only — prevents mid-word breaks */
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.35 !important;
+    padding-left: 18px !important; /* indent under the checkbox */
   }
+  /* Priority badge sits after the title on line 2 */
+  .backlog-subsection-header > span[style*='border-radius: 999px'],
+  .backlog-subsection-header > span[style*='border-radius:999px'] {
+    order: 4;
+    margin-left: 18px !important;
+    align-self: center !important;
+  }
+  /* Hide the done/total counter — redundant when you have ☐ per step */
+  .backlog-subsection-header > span[style*='background: #f1f5f9'],
+  .backlog-subsection-header > span[style*='background:#f1f5f9'] {
+    display: none !important;
+  }
+
   .backlog-subsection .backlog-body {
-    padding: 0 8px 4px 26px !important;
+    padding: 2px 8px 5px 26px !important;
   }
 
   /* ── Step row ── */
   .backlog-step {
-    padding: 1px 0 !important;
+    padding: 2px 0 !important;
     gap: 5px !important;
     background: none !important;
+    margin-top: 3px !important;
   }
   .backlog-step-title {
     font-size: 8pt !important;
     font-weight: 400 !important;
     text-decoration: none !important;
     color: #334155 !important;
-    line-height: 1.4 !important;
+    line-height: 1.45 !important;
+    word-break: break-word !important;
   }
 
   /* ── Checkboxes — Unicode squares print on every browser/OS ── */
