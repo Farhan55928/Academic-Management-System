@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Lenovo/.puku-cli/**)",
+      "Read(//c/Users/Lenovo/.claude/**)",
+      "Bash(grep -oE slash_commands[^]*[a-zA-Z-]+ ~/.puku-cli/projects/D--VSCODE-WEB-PROJECTS-AMS/cfd6c78e-7d2b-4c05-ba09-30ed60a118ad.jsonl)"
+    ]
+  }
+}

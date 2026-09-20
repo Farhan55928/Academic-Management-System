@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { login as apiLogin } from '../api/auth.js';
+import { useState, useCallback, useEffect } from 'react';
+import { login as apiLogin, getMe as apiGetMe } from '../api/auth.js';
 
 const TOKEN_KEY = 'ams_token';
 const USER_KEY  = 'ams_user';
@@ -9,6 +9,18 @@ export function useAuth() {
   const [user,  setUser]  = useState(() => {
     try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; }
   });
+
+  // On mount, refresh the user from /me so we have googleConnected etc.
+  // Silent on failure (expired token etc.) — the axios interceptor handles
+  // redirecting to /login.
+  useEffect(() => {
+    if (!token) return;
+    apiGetMe().then(res => {
+      const fresh = res.data;
+      localStorage.setItem(USER_KEY, JSON.stringify(fresh));
+      setUser(fresh);
+    }).catch(() => {});
+  }, [token]);
 
   const login = useCallback(async (email, password) => {
     const res = await apiLogin(email, password);
