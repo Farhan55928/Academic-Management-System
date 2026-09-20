@@ -3,15 +3,18 @@ import { MdAdd, MdEdit, MdDelete, MdEmail, MdCheckBox, MdCheckBoxOutlineBlank, M
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getAttendance, addAttendance, updateAttendance, deleteAttendance } from '../../../api/attendance.js';
+import { errorMessage, classifyError } from '../../../api/errors.js';
 import StatCard from '../../../components/UI/StatCard.jsx';
 import Modal from '../../../components/UI/Modal.jsx';
 import EmptyState from '../../../components/UI/EmptyState.jsx';
+import ErrorState from '../../../components/UI/ErrorState.jsx';
 
 const EMPTY_FORM = { date: moment().format('YYYY-MM-DD'), status: 'present', remark: '', emailSent: false };
 
 export default function AttendanceTab({ courseId }) {
   const [records,  setRecords]  = useState([]);
   const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState(null);
   const [modal,    setModal]    = useState(false);
   const [form,     setForm]     = useState(EMPTY_FORM);
   const [editId,   setEditId]   = useState(null);
@@ -19,10 +22,14 @@ export default function AttendanceTab({ courseId }) {
 
   const load = () => {
     setLoading(true);
+    setError(null);
     getAttendance(courseId).then(r => {
       setRecords(r.data);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(e => {
+      setError(e.info ?? classifyError(e));
+      setLoading(false);
+    });
   };
 
   useEffect(() => { load(); }, [courseId]);
@@ -48,7 +55,7 @@ export default function AttendanceTab({ courseId }) {
       }
       close();
       getAttendance(courseId).then(r => setRecords(r.data));
-    } catch (e) { toast.error(e?.response?.data?.message || 'Error'); }
+    } catch (e) { toast.error(errorMessage(e)); }
     finally { setSaving(false); }
   };
 
@@ -58,14 +65,14 @@ export default function AttendanceTab({ courseId }) {
       await deleteAttendance(id);
       toast.success('Deleted');
       setRecords(rs => rs.filter(r => r._id !== id));
-    } catch { toast.error('Failed to delete'); }
+    } catch (e) { toast.error(errorMessage(e, 'Failed to delete')); }
   };
 
   const toggleEmail = async (rec) => {
     try {
       const updated = await updateAttendance(rec._id, { ...rec, emailSent: !rec.emailSent });
       setRecords(rs => rs.map(r => r._id === rec._id ? updated.data : r));
-    } catch { toast.error('Failed to update'); }
+    } catch (e) { toast.error(errorMessage(e, 'Failed to update')); }
   };
 
   const total   = records.length;
@@ -99,6 +106,8 @@ export default function AttendanceTab({ courseId }) {
 
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
+      ) : error ? (
+        <ErrorState description={error.message} onRetry={load} />
       ) : records.length === 0 ? (
         <EmptyState
           icon="📋"

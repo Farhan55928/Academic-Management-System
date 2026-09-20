@@ -1,34 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { MdAdd, MdEdit, MdDelete, MdScience, MdBook,
          MdArrowBack, MdOutlineQuiz } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import { getCourses, createCourse, updateCourse, deleteCourse } from '../../api/courses.js';
 import { getSemesters } from '../../api/semesters.js';
+import { errorMessage } from '../../api/errors.js';
+import { useAsyncData } from '../../hooks/useAsyncData.js';
 import PageHeader from '../../components/UI/PageHeader.jsx';
 import Modal from '../../components/UI/Modal.jsx';
 import EmptyState from '../../components/UI/EmptyState.jsx';
+import ErrorState from '../../components/UI/ErrorState.jsx';
 
 const EMPTY_FORM = { name: '', code: '', type: 'theory', creditHours: 3 };
 
 export default function SemesterDetailPage() {
   const { semesterId } = useParams();
   const navigate       = useNavigate();
-  const [semester, setSemester] = useState(null);
-  const [courses,  setCourses]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
   const [modal,    setModal]    = useState(false);
   const [form,     setForm]     = useState(EMPTY_FORM);
   const [editId,   setEditId]   = useState(null);
   const [saving,   setSaving]   = useState(false);
 
-  const load = () =>
-    Promise.all([
-      getSemesters().then(r => setSemester(r.data.find(s => s._id === semesterId))),
-      getCourses(semesterId).then(r => setCourses(r.data)),
+  const { data, loading, error, reload } = useAsyncData(async (signal) => {
+    const [semRes, courseRes] = await Promise.all([
+      getSemesters(signal),
+      getCourses(semesterId, signal),
     ]);
+    return {
+      semester: semRes.data.find(s => s._id === semesterId) ?? null,
+      courses: courseRes.data,
+    };
+  }, [semesterId]);
 
-  useEffect(() => { load().finally(() => setLoading(false)); }, [semesterId]);
+  const semester = data?.semester ?? null;
+  const courses  = data?.courses ?? [];
 
   const openAdd  = () => { setForm(EMPTY_FORM); setEditId(null); setModal(true); };
   const openEdit = (c) => {
@@ -50,9 +56,9 @@ export default function SemesterDetailPage() {
         toast.success('Course added');
       }
       close();
-      load();
+      reload();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Error');
+      toast.error(errorMessage(e));
     } finally { setSaving(false); }
   };
 
@@ -61,8 +67,8 @@ export default function SemesterDetailPage() {
     try {
       await deleteCourse(id);
       toast.success('Course deleted');
-      load();
-    } catch { toast.error('Failed to delete'); }
+      reload();
+    } catch (e) { toast.error(errorMessage(e, 'Failed to delete')); }
   };
 
   const theoryCourses = courses.filter(c => c.type === 'theory');
@@ -127,6 +133,8 @@ export default function SemesterDetailPage() {
 
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
+      ) : error ? (
+        <ErrorState description={error.message} onRetry={reload} />
       ) : courses.length === 0 ? (
         <EmptyState
           icon="📚"

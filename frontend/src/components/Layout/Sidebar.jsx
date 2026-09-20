@@ -14,11 +14,14 @@ export default function Sidebar({ user, onLogout }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    // Fetch once per mount — this used to re-run on every route change,
+    // duplicating whatever the destination page was already fetching and
+    // competing for the same (small, serverless) connection pool.
     getSemesters().then(res => {
       const active = res.data.find(s => s.isActive) || res.data[0];
       setActiveSemester(active);
     }).catch(() => {});
-  }, [location.pathname]);
+  }, []);
 
   // Close drawer on route change
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);

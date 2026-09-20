@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MdOutlineSchool, MdEmail, MdLock, MdLogin } from 'react-icons/md';
 import toast from 'react-hot-toast';
+import { classifyError, ErrorKind } from '../../api/errors.js';
 
 export default function LoginPage({ onLogin }) {
   const [email,    setEmail]    = useState('');
@@ -18,7 +19,11 @@ export default function LoginPage({ onLogin }) {
       toast.success('Welcome back!');
       navigate('/');
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Invalid credentials');
+      // Only a genuine 401 from our API means the credentials are actually
+      // wrong — everything else (offline, timeout, cold-start gateway page,
+      // DB unavailable) must say so honestly instead of blaming the password.
+      const info = err.info ?? classifyError(err);
+      toast.error(info.kind === ErrorKind.AUTH ? (info.message || 'Invalid email or password') : info.message);
     } finally {
       setLoading(false);
     }

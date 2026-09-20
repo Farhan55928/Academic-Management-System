@@ -47,5 +47,7 @@ const labRecordSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+labRecordSchema.index({ course: 1, updatedAt: -1 });
+
 const LabRecord = mongoose.model('LabRecord', labRecordSchema);
 export default LabRecord;

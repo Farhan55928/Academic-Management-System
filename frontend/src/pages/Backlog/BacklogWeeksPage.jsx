@@ -4,6 +4,7 @@ import { MdAdd, MdChecklist, MdArrowForward, MdDelete, MdEdit, MdClose, MdCheck 
 import toast from 'react-hot-toast';
 import { getWeeks, createWeek, updateWeek, deleteWeek } from '../../api/backlog.js';
 import { getSemesters } from '../../api/semesters.js';
+import { errorMessage } from '../../api/errors.js';
 import { meterColor, gradientFor } from './backlogUtils.js';
 
 export default function BacklogWeeksPage() {
@@ -18,7 +19,7 @@ export default function BacklogWeeksPage() {
   const navigate = useNavigate();
 
   const load = (semesterId) =>
-    getWeeks(semesterId).then(r => setWeeks(r.data)).catch(() => toast.error('Failed to load'));
+    getWeeks(semesterId).then(r => setWeeks(r.data)).catch(err => toast.error(errorMessage(err, 'Failed to load')));
 
   // Default the filter to the active semester — that's the term you actually work in
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function BacklogWeeksPage() {
         setFilter(initial);
         return load(initial);
       })
-      .catch(() => toast.error('Failed to load semesters'))
+      .catch(err => toast.error(errorMessage(err, 'Failed to load semesters')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -72,7 +73,7 @@ export default function BacklogWeeksPage() {
       else        { await createWeek(form);         toast.success('Week created'); }
       setModal(false);
       load(filter);
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSaving(false); }
   };
 
@@ -80,7 +81,7 @@ export default function BacklogWeeksPage() {
     e.preventDefault(); e.stopPropagation();
     if (!confirm('Delete this week? Every section, subsection and step inside it will be removed.')) return;
     try { await deleteWeek(id); toast.success('Deleted'); load(filter); }
-    catch { toast.error('Failed to delete'); }
+    catch (err) { toast.error(errorMessage(err, 'Failed to delete')); }
   };
 
   return (

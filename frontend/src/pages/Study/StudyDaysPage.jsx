@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { MdAdd, MdDelete, MdClose, MdCalendarToday, MdArrowForward, MdMenuBook, MdStar, MdTimer } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import { getStudyDays, createStudyDay, deleteStudyDay } from '../../api/study.js';
+import { errorMessage } from '../../api/errors.js';
 
 const DAY_GRADIENTS = [
   'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
@@ -31,7 +32,7 @@ export default function StudyDaysPage() {
     try {
       const res = await getStudyDays();
       setDays(res.data);
-    } catch { toast.error('Failed to load study days'); }
+    } catch (err) { toast.error(errorMessage(err, 'Failed to load study days')); }
     finally { setLoading(false); }
   };
 
@@ -58,7 +59,7 @@ export default function StudyDaysPage() {
       toast.success('Study day created');
       setModal(false);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSaving(false); }
   };
 
@@ -66,7 +67,7 @@ export default function StudyDaysPage() {
     e.preventDefault(); e.stopPropagation();
     if (!confirm('Delete this study day and ALL its sessions?')) return;
     try { await deleteStudyDay(id); toast.success('Deleted'); load(); }
-    catch { toast.error('Failed to delete'); }
+    catch (err) { toast.error(errorMessage(err, 'Failed to delete')); }
   };
 
   if (loading) return (

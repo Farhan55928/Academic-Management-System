@@ -12,6 +12,7 @@ import {
   createSession, updateSession, deleteSession,
   createOrUpdateOverview, deleteOverview
 } from '../../api/study.js';
+import { errorMessage } from '../../api/errors.js';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
 
@@ -56,7 +57,7 @@ export default function StudyDayDetailPage() {
       setDay(res.data);
       setSessions(res.data.sessions || []);
       setOverview(res.data.overview || null);
-    } catch { toast.error('Failed to load day details'); }
+    } catch (err) { toast.error(errorMessage(err, 'Failed to load day details')); }
     finally { setLoading(false); }
   };
 
@@ -115,14 +116,14 @@ export default function StudyDayDetailPage() {
       }
       setSessionModal(false);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSavingSession(false); }
   };
 
   const handleDeleteSession = async (id) => {
     if (!confirm('Delete this session?')) return;
     try { await deleteSession(id); toast.success('Session removed'); load(); }
-    catch { toast.error('Failed'); }
+    catch (err) { toast.error(errorMessage(err)); }
   };
 
   // ── Overview handlers ────────────────────────────────────
@@ -143,14 +144,14 @@ export default function StudyDayDetailPage() {
       toast.success(overview ? 'Overview updated' : 'Overview saved');
       setOverviewModal(false);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSavingOverview(false); }
   };
 
   const handleDeleteOverview = async () => {
     if (!confirm('Remove day overview?')) return;
     try { await deleteOverview(dayId); toast.success('Overview removed'); load(); }
-    catch { toast.error('Failed'); }
+    catch (err) { toast.error(errorMessage(err)); }
   };
 
   if (loading) return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MdAdd, MdEdit, MdDelete, MdStar, MdStarOutline, MdCalendarToday } from 'react-icons/md';
 import toast from 'react-hot-toast';
@@ -6,25 +6,26 @@ import {
   getSemesters, createSemester, updateSemester,
   deleteSemester, activateSemester
 } from '../../api/semesters.js';
+import { errorMessage } from '../../api/errors.js';
+import { useAsyncData } from '../../hooks/useAsyncData.js';
 import PageHeader from '../../components/UI/PageHeader.jsx';
 import Modal from '../../components/UI/Modal.jsx';
 import EmptyState from '../../components/UI/EmptyState.jsx';
+import ErrorState from '../../components/UI/ErrorState.jsx';
 
 const EMPTY_FORM = { name: '', year: new Date().getFullYear() };
 
 export default function SemestersPage() {
-  const [semesters, setSemesters] = useState([]);
-  const [loading,   setLoading]   = useState(true);
   const [modal,     setModal]     = useState(null); // null | 'add' | 'edit'
   const [form,      setForm]      = useState(EMPTY_FORM);
   const [editId,    setEditId]    = useState(null);
   const [saving,    setSaving]    = useState(false);
   const navigate = useNavigate();
 
-  const load = () =>
-    getSemesters().then(r => setSemesters(r.data)).catch(() => toast.error('Failed to load'));
-
-  useEffect(() => { load().finally(() => setLoading(false)); }, []);
+  const { data: semesters, loading, error, reload } = useAsyncData(
+    (signal) => getSemesters(signal).then((r) => r.data),
+    []
+  );
 
   const openAdd  = () => { setForm(EMPTY_FORM); setEditId(null); setModal('form'); };
   const openEdit = (s) => { setForm({ name: s.name, year: s.year }); setEditId(s._id); setModal('form'); };
@@ -42,9 +43,9 @@ export default function SemestersPage() {
         toast.success('Semester created');
       }
       close();
-      load();
+      reload();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Error');
+      toast.error(errorMessage(e));
     } finally { setSaving(false); }
   };
 
@@ -53,16 +54,16 @@ export default function SemestersPage() {
     try {
       await deleteSemester(id);
       toast.success('Semester deleted');
-      load();
-    } catch { toast.error('Failed to delete'); }
+      reload();
+    } catch (e) { toast.error(errorMessage(e, 'Failed to delete')); }
   };
 
   const handleActivate = async (id) => {
     try {
       await activateSemester(id);
       toast.success('Semester set as active');
-      load();
-    } catch { toast.error('Failed to activate'); }
+      reload();
+    } catch (e) { toast.error(errorMessage(e, 'Failed to activate')); }
   };
 
   return (
@@ -80,7 +81,9 @@ export default function SemestersPage() {
 
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
-      ) : semesters.length === 0 ? (
+      ) : error ? (
+        <ErrorState description={error.message} onRetry={reload} />
+      ) : (semesters ?? []).length === 0 ? (
         <EmptyState
           icon="📅"
           title="No semesters yet"

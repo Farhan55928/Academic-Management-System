@@ -42,15 +42,22 @@ npm run preview      # Preview production build
 ### Backend Structure
 
 ```
-backend/src/
-├── config/          # Database configuration
-├── models/          # Mongoose schemas
-├── controllers/     # Request handlers (one per resource)
-├── routes/          # Express route definitions
-├── middleware/      # Auth and request middleware
-├── utils/           # Helper functions
-└── scripts/         # Utility scripts (migrations, seeding)
+backend/
+├── api/index.js     # Vercel serverless entrypoint — imports src/app.js, no listen()
+├── server.js        # Local dev entrypoint — imports src/app.js, calls app.listen()
+└── src/
+    ├── app.js           # The actual Express app: middleware, all route registration, error handler
+    ├── config/          # Database configuration (cached connection, see db.js)
+    ├── models/          # Mongoose schemas
+    ├── controllers/     # Request handlers (one per resource)
+    ├── routes/          # Express route definitions
+    ├── middleware/      # Auth, DB-readiness, and request middleware
+    ├── utils/           # Helper functions
+    └── scripts/         # Utility scripts (migrations, seeding)
 ```
+
+`app.js` is imported by both entrypoints so the same Express app runs identically in
+local dev and on Vercel — see the 503 contract note below for why this split exists.
 
 ### API Design
 
@@ -59,11 +66,11 @@ The API uses a **nested routing pattern** for hierarchical resources:
 ```
 Semesters (top level)
   ├── /api/semesters                              [GET/POST]
-  ├── /api/semesters/:id                          [GET/PUT/DELETE]
+  ├── /api/semesters/:id                          [PUT/DELETE]  (no GET-by-id route exists)
   │
   └── Courses (nested under semester)
       ├── /api/semesters/:semesterId/courses      [GET/POST]
-      ├── /api/courses/:id                        [PUT/DELETE standalone]
+      ├── /api/courses/:id                        [GET/PUT/DELETE standalone]
       │
       ├── Attendance (nested under course)
       │   ├── /api/courses/:courseId/attendance   [GET/POST]
@@ -99,12 +106,28 @@ Academic Backlog (Week → Section → Subsection → Step)
 └── /api/backlog/reorder                            [PUT { type, ids }]
 
 Auth
-└── /api/auth                                    [POST login/register]
+├── /api/auth/login                              [POST]  (no register endpoint exists)
+└── /api/auth/me                                 [GET]
+
+Diagnostics
+└── /api/health                                  [GET]  DB connectivity + connect latency, no auth required
 ```
 
 Note: unlike the other modules, the backlog's standalone PUT/DELETE routes live in
-`backlogRoutes.js` rather than `server.js` — every level shares the `/api/backlog`
+`backlogRoutes.js` rather than `app.js` — every level shares the `/api/backlog`
 prefix, so registering them separately would run `protect` twice per request.
+
+### Error responses and the 503 contract
+
+Every error body is `{ code, message }`. A **503** with `code: 'DB_UNAVAILABLE'` means
+the database was unreachable or too slow — it is never the client's fault and is safe
+to retry (the frontend's axios interceptor in `api/axios.js` auto-retries idempotent
+GETs on it). A **401** always means the JWT itself is missing/expired/invalid, or the
+login credentials were genuinely wrong — `protect()` and the login handler each isolate
+their DB calls in a separate try/catch specifically so a slow/unreachable database can
+never be misreported as a 401. See `backend/src/config/db.js` (cached, capped-timeout
+Mongo connection reused across serverless invocations) and
+`backend/src/middleware/dbMiddleware.js` (`ensureDb`, gates every DB-touching route).
 
 ### Key Models
 
@@ -129,12 +152,11 @@ prefix, so registering them separately would run `protect` twice per request.
 ```
 frontend/src/
 ├── pages/           # Full-page components (Semesters, Courses, Study, Expenses)
-├── components/      # Reusable UI components (Modal, StatCard, PageHeader, Sidebar)
-├── routes/          # Router configuration
-├── api/             # Axios instance (api/axios.js) + one module per resource
-├── Axios/           # DEAD CODE — UseAxiosSecure reads the wrong token key; do not use
+├── components/      # Reusable UI components (Modal, StatCard, PageHeader, Sidebar, ErrorState)
+├── hooks/           # useAuth, useAsyncData (shared loading/error/data/reload for pages)
+├── api/             # Axios instance (api/axios.js), errors.js (error classifier), + one module per resource
 ├── utils/           # Helper functions
-└── main.jsx         # React entry point
+└── main.jsx         # React entry point → App.jsx (routing is defined inline in App.jsx)
 ```
 
 ### Key Pages
@@ -171,7 +193,7 @@ export const getAllResources = async (req, res) => {
 ### Adding a new frontend page
 
 1. Create component in `frontend/src/pages/<Feature>/`
-2. Add route to `frontend/src/routes/Router.jsx`
+2. Add route directly in `frontend/src/App.jsx` (routing is defined inline there, not in `src/routes/Router.jsx`, which is unused)
 3. Add a per-resource module in `src/api/` that imports the shared `api/axios.js` instance (it attaches the `ams_token` bearer header automatically)
 4. Style with TailwindCSS + DaisyUI
 

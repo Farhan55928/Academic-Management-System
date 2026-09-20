@@ -5,7 +5,7 @@ import Semester from '../models/Semester.js';
 // @access Private
 export const getSemesters = async (req, res) => {
   try {
-    const semesters = await Semester.find({ userId: req.user._id }).sort({ year: -1, createdAt: -1 });
+    const semesters = await Semester.find({ userId: req.user._id }).sort({ year: -1, createdAt: -1 }).lean();
     res.status(200).json(semesters);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

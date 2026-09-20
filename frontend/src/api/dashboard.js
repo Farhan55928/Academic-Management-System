@@ -1,3 +1,3 @@
 import api from './axios.js';
 
-export const getDashboard = () => api.get('/dashboard');
+export const getDashboard = (signal) => api.get('/dashboard', { signal });

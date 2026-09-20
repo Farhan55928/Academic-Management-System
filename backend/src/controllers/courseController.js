@@ -8,8 +8,21 @@ export const getCourses = async (req, res) => {
     const courses = await Course.find({
       semester: req.params.semesterId,
       userId: req.user._id,
-    }).sort({ createdAt: 1 });
+    }).sort({ createdAt: 1 }).lean();
     res.status(200).json(courses);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc  Get a single course by id (owned by logged-in user)
+// @route GET /api/courses/:id
+// @access Private
+export const getCourseById = async (req, res) => {
+  try {
+    const course = await Course.findOne({ _id: req.params.id, userId: req.user._id }).lean();
+    if (!course) return res.status(404).json({ code: 'NOT_FOUND', message: 'Course not found' });
+    res.status(200).json(course);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

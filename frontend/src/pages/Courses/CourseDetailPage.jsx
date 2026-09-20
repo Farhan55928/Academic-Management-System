@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { MdArrowBack } from 'react-icons/md';
-import { getSemesters } from '../../api/semesters.js';
-import { getCourses } from '../../api/courses.js';
+import { getCourse } from '../../api/courses.js';
+import { useAsyncData } from '../../hooks/useAsyncData.js';
+import { ErrorKind } from '../../api/errors.js';
 import PageHeader from '../../components/UI/PageHeader.jsx';
+import ErrorState from '../../components/UI/ErrorState.jsx';
 import AttendanceTab from './tabs/AttendanceTab.jsx';
 import MarksTab from './tabs/MarksTab.jsx';
 import LabsTab from './tabs/LabsTab.jsx';
@@ -12,41 +14,21 @@ export default function CourseDetailPage() {
   const { courseId } = useParams();
   const navigate     = useNavigate();
   const location     = useLocation();
-  
-  const [course,   setCourse]   = useState(null);
-  const [loading,  setLoading]  = useState(true);
+
   const [activeTab, setActiveTab] = useState('attendance');
 
-  // Load course details by scanning semesters (simple lookup)
-  const loadCourse = async () => {
-    try {
-      const res = await getSemesters();
-      for (const sem of res.data) {
-        const r = await getCourses(sem._id);
-        const c = r.data.find(c => c._id === courseId);
-        if (c) { 
-          setCourse(c); 
-          // Default tab logic
-          if (location.hash === '#marks') setActiveTab('marks');
-          else if (location.hash === '#labs' && c.type === 'lab') setActiveTab('labs');
-          return; 
-        }
-      }
-    } catch (e) {
-      console.error('Error loading course', e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: course, loading, error, reload } = useAsyncData(
+    (signal) => getCourse(courseId, signal).then((r) => r.data),
+    [courseId]
+  );
 
-  useEffect(() => { loadCourse(); }, [courseId]);
-
-  // Sync state with hash if it changes externally
+  // Sync the active tab with the hash, both on load and when it changes
+  // externally (e.g. the "Attendance" shortcut from another page).
   useEffect(() => {
     if (location.hash === '#marks') setActiveTab('marks');
-    else if (location.hash === '#labs') setActiveTab('labs');
+    else if (location.hash === '#labs' && course?.type === 'lab') setActiveTab('labs');
     else if (location.hash === '#attendance') setActiveTab('attendance');
-  }, [location.hash]);
+  }, [location.hash, course?.type]);
 
   const handleTabChange = (t) => {
     setActiveTab(t);
@@ -56,6 +38,15 @@ export default function CourseDetailPage() {
   if (loading) return (
     <div className="page-wrapper flex items-center justify-center" style={{ minHeight: '60vh' }}>
       <p className="text-muted">Loading course details…</p>
+    </div>
+  );
+
+  if (error && error.kind !== ErrorKind.NOTFOUND) return (
+    <div className="page-wrapper">
+      <button className="btn btn-ghost btn-sm mb-4" onClick={() => navigate(-1)}>
+        <MdArrowBack size={15} /> Back
+      </button>
+      <ErrorState description={error.message} onRetry={reload} />
     </div>
   );
 

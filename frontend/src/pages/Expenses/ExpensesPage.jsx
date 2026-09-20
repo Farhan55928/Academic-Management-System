@@ -4,6 +4,7 @@ import { MdAdd, MdDelete, MdEdit, MdArrowBack, MdClose } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import { getMonthDetails } from '../../api/month.js';
 import { addExpense, updateExpense, deleteExpense } from '../../api/expense.js';
+import { errorMessage } from '../../api/errors.js';
 
 const CATEGORIES = {
   Food:          { icon: '🍔', color: '#f97316', bg: '#fff7ed' },
@@ -33,7 +34,7 @@ export default function ExpensesPage() {
       const res = await getMonthDetails(monthId);
       setMonth(res.data);
       setExpenses(res.data.expenses || []);
-    } catch { toast.error('Failed to load'); }
+    } catch (err) { toast.error(errorMessage(err, 'Failed to load')); }
     finally { setLoading(false); }
   };
 
@@ -79,13 +80,13 @@ export default function ExpensesPage() {
       toast.success(editId ? 'Updated' : 'Logged');
       setModal(false);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSaving(false); }
   };
   const handleDelete = async (id) => {
     if (!confirm('Delete this entry?')) return;
     try { await deleteExpense(id); toast.success('Removed'); load(); }
-    catch { toast.error('Failed'); }
+    catch (err) { toast.error(errorMessage(err)); }
   };
 
   if (loading) return (

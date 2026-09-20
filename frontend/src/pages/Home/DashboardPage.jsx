@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   MdAdd,
@@ -13,12 +12,13 @@ import {
   MdScience,
   MdTrendingUp,
 } from 'react-icons/md';
-import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getDashboard } from '../../api/dashboard.js';
+import { useAsyncData } from '../../hooks/useAsyncData.js';
 import PageHeader from '../../components/UI/PageHeader.jsx';
 import StatCard from '../../components/UI/StatCard.jsx';
 import EmptyState from '../../components/UI/EmptyState.jsx';
+import ErrorState from '../../components/UI/ErrorState.jsx';
 
 function getAttendanceTone(pct) {
   if (pct === null) return 'neutral';
@@ -132,25 +132,18 @@ function CourseOverviewCard({ course }) {
 }
 
 export default function DashboardPage() {
-  const [semesters, setSemesters] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [activity, setActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const activeSemester = semesters.find((s) => s.isActive) || semesters[0] || null;
+  const { data, loading, error, reload } = useAsyncData(
+    (signal) => getDashboard(signal).then((r) => r.data),
+    []
+  );
 
-  useEffect(() => {
-    getDashboard()
-      .then((res) => {
-        const { semesters: sem, courses: crs, activity: act } = res.data;
-        setSemesters(sem);
-        setCourses(crs);
-        setActivity(act);
-      })
-      .catch(() => toast.error('Failed to load dashboard'))
-      .finally(() => setLoading(false));
-  }, []);
+  const semesters = data?.semesters ?? [];
+  const courses   = data?.courses ?? [];
+  const activity  = data?.activity ?? [];
+
+  const activeSemester = semesters.find((s) => s.isActive) || semesters[0] || null;
 
   const theoryCourses = courses.filter((c) => c.type === 'theory');
   const labCourses = courses.filter((c) => c.type === 'lab');
@@ -184,7 +177,9 @@ export default function DashboardPage() {
         }
       />
 
-      {!activeSemester ? (
+      {error ? (
+        <ErrorState description={error.message} onRetry={reload} />
+      ) : !activeSemester ? (
         <EmptyState
           icon="Academic"
           title="No semester found"

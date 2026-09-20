@@ -3,9 +3,11 @@ import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getLabs, addLab, updateLab, deleteLab } from '../../../api/labs.js';
+import { errorMessage, classifyError } from '../../../api/errors.js';
 import StatCard from '../../../components/UI/StatCard.jsx';
 import Modal from '../../../components/UI/Modal.jsx';
 import EmptyState from '../../../components/UI/EmptyState.jsx';
+import ErrorState from '../../../components/UI/ErrorState.jsx';
 
 const TASK_STATUS_OPTIONS   = ['pending', 'completed', 'not_required'];
 const REPORT_STATUS_OPTIONS = ['pending', 'submitted', 'graded', 'not_required'];
@@ -34,6 +36,7 @@ const EMPTY_FORM = {
 export default function LabsTab({ courseId }) {
   const [labs,    setLabs]    = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState(null);
   const [modal,   setModal]   = useState(false);
   const [form,    setForm]    = useState(EMPTY_FORM);
   const [editId,  setEditId]  = useState(null);
@@ -41,10 +44,14 @@ export default function LabsTab({ courseId }) {
 
   const load = () => {
     setLoading(true);
+    setError(null);
     getLabs(courseId).then(r => {
       setLabs(r.data);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(e => {
+      setError(e.info ?? classifyError(e));
+      setLoading(false);
+    });
   };
 
   useEffect(() => { load(); }, [courseId]);
@@ -75,14 +82,14 @@ export default function LabsTab({ courseId }) {
       else { await addLab(courseId, payload); toast.success('Lab added'); }
       close();
       getLabs(courseId).then(r => setLabs(r.data));
-    } catch (e) { toast.error(e?.response?.data?.message || 'Error'); }
+    } catch (e) { toast.error(errorMessage(e)); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this lab record?')) return;
     try { await deleteLab(id); toast.success('Deleted'); setLabs(ls => ls.filter(l => l._id !== id)); }
-    catch { toast.error('Failed to delete'); }
+    catch (e) { toast.error(errorMessage(e, 'Failed to delete')); }
   };
 
   const completed = labs.filter(l => l.taskStatus === 'completed').length;
@@ -107,6 +114,8 @@ export default function LabsTab({ courseId }) {
 
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
+      ) : error ? (
+        <ErrorState description={error.message} onRetry={load} />
       ) : labs.length === 0 ? (
         <EmptyState icon="🔬" title="No labs recorded"
           description="Start tracking your lab tasks and reports."

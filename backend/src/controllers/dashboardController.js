@@ -11,7 +11,7 @@ export const getDashboard = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const semesters = await Semester.find({ userId }).sort({ year: -1, createdAt: -1 });
+    const semesters = await Semester.find({ userId }).sort({ year: -1, createdAt: -1 }).lean();
 
     const activeSemester = semesters.find((s) => s.isActive) || semesters[0] || null;
 
@@ -19,14 +19,16 @@ export const getDashboard = async (req, res) => {
       return res.status(200).json({ semesters, activeSemester: null, courses: [], activity: [] });
     }
 
-    const rawCourses = await Course.find({ semester: activeSemester._id, userId }).sort({ createdAt: 1 });
+    const rawCourses = await Course.find({ semester: activeSemester._id, userId }).sort({ createdAt: 1 }).lean();
 
     const courseIds = rawCourses.map((c) => c._id);
 
+    // Attendance feeds the per-course stats below, so it can't be capped to
+    // the activity feed's top 5 — labs/marks only ever feed the feed.
     const [attendanceRecords, labRecords, marksRecords] = await Promise.all([
-      AttendanceRecord.find({ course: { $in: courseIds } }),
-      LabRecord.find({ course: { $in: courseIds } }),
-      MarksRecord.find({ course: { $in: courseIds } }),
+      AttendanceRecord.find({ course: { $in: courseIds } }).lean(),
+      LabRecord.find({ course: { $in: courseIds } }).sort({ updatedAt: -1 }).limit(5).lean(),
+      MarksRecord.find({ course: { $in: courseIds } }).sort({ updatedAt: -1 }).limit(5).lean(),
     ]);
 
     // Build a lookup map: courseId -> courseName for activity tagging
@@ -47,23 +49,23 @@ export const getDashboard = async (req, res) => {
     const courses = rawCourses.map((c) => {
       const a = attendanceMap[c._id.toString()] || { total: 0, present: 0 };
       const pct = a.total > 0 ? Math.round((a.present / a.total) * 100) : null;
-      return { ...c.toObject(), stats: { total: a.total, present: a.present, pct } };
+      return { ...c, stats: { total: a.total, present: a.present, pct } };
     });
 
     // Build activity feed (top 5 most recent across all types)
     const activity = [
       ...attendanceRecords.map((r) => ({
-        ...r.toObject(),
+        ...r,
         actType: 'Attendance',
         courseName: courseNameMap[r.course.toString()] || '',
       })),
       ...labRecords.map((r) => ({
-        ...r.toObject(),
+        ...r,
         actType: 'Lab',
         courseName: courseNameMap[r.course.toString()] || '',
       })),
       ...marksRecords.map((r) => ({
-        ...r.toObject(),
+        ...r,
         actType: 'Marks',
         courseName: courseNameMap[r.course.toString()] || '',
       })),

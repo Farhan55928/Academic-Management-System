@@ -12,17 +12,29 @@ const generateToken = (id) => {
 // @route POST /api/auth/login
 // @access Public
 export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ code: 'MISSING_FIELDS', message: 'Please provide email and password' });
+  }
+
+  // Isolated from the credential check below: a DB timeout here is an
+  // infrastructure problem, not a wrong password, and must never be
+  // reported as one.
+  let user;
   try {
-    const { email, password } = req.body;
+    user = await User.findOne({ email: email.toLowerCase() });
+  } catch (error) {
+    console.error('[login] db lookup failed:', error?.message);
+    return res.status(503).json({
+      code: 'DB_UNAVAILABLE',
+      message: 'Service temporarily unavailable. Please try again.',
+    });
+  }
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password' });
-    }
-
-    const user = await User.findOne({ email: email.toLowerCase() });
-
+  try {
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' });
     }
 
     res.status(200).json({
@@ -34,7 +46,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ code: 'SERVER_ERROR', message: 'Server error during login' });
   }
 };
 
@@ -48,6 +60,6 @@ export const getMe = async (req, res) => {
       email: req.user.email,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ code: 'SERVER_ERROR', message: 'Server error' });
   }
 };

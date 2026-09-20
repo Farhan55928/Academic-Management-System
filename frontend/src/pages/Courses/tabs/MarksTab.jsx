@@ -3,9 +3,11 @@ import { MdAdd, MdEdit, MdDelete } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import moment from 'moment';
 import { getMarks, addMarks, updateMarks, deleteMarks } from '../../../api/marks.js';
+import { errorMessage, classifyError } from '../../../api/errors.js';
 import StatCard from '../../../components/UI/StatCard.jsx';
 import Modal from '../../../components/UI/Modal.jsx';
 import EmptyState from '../../../components/UI/EmptyState.jsx';
+import ErrorState from '../../../components/UI/ErrorState.jsx';
 
 const TYPE_OPTS  = ['quiz', 'mid', 'assignment'];
 const TYPE_LABELS = { quiz: 'Quiz', mid: 'Mid Exam', assignment: 'Assignment' };
@@ -42,6 +44,7 @@ export default function MarksTab({ courseId }) {
   const [records, setRecords] = useState([]);
   const [tab,     setTab]     = useState('all');
   const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState(null);
   const [modal,   setModal]   = useState(false);
   const [form,    setForm]    = useState(EMPTY_FORM);
   const [editId,  setEditId]  = useState(null);
@@ -49,10 +52,14 @@ export default function MarksTab({ courseId }) {
 
   const load = () => {
     setLoading(true);
+    setError(null);
     getMarks(courseId).then(r => {
       setRecords(r.data);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(e => {
+      setError(e.info ?? classifyError(e));
+      setLoading(false);
+    });
   };
 
   useEffect(() => { load(); }, [courseId]);
@@ -77,14 +84,14 @@ export default function MarksTab({ courseId }) {
       else { await addMarks(courseId, payload); toast.success('Added'); }
       close();
       getMarks(courseId).then(r => setRecords(r.data));
-    } catch (e) { toast.error(e?.response?.data?.message || 'Error'); }
+    } catch (e) { toast.error(errorMessage(e)); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this record?')) return;
     try { await deleteMarks(id); toast.success('Deleted'); setRecords(rs => rs.filter(r => r._id !== id)); }
-    catch { toast.error('Failed'); }
+    catch (e) { toast.error(errorMessage(e, 'Failed to delete')); }
   };
 
   const filtered = tab === 'all' ? records : records.filter(r => r.type === tab);
@@ -123,6 +130,8 @@ export default function MarksTab({ courseId }) {
 
       {loading ? (
         <div className="empty-state"><p>Loading…</p></div>
+      ) : error ? (
+        <ErrorState description={error.message} onRetry={load} />
       ) : filtered.length === 0 ? (
         <EmptyState icon="📊" title="No records"
           description={tab === 'all' ? "Start tracking masks for this course." : `No ${TYPE_LABELS[tab]} records found.`}

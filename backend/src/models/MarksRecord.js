@@ -36,5 +36,7 @@ const marksRecordSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+marksRecordSchema.index({ course: 1, updatedAt: -1 });
+
 const MarksRecord = mongoose.model('MarksRecord', marksRecordSchema);
 export default MarksRecord;

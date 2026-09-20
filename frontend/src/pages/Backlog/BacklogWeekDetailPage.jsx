@@ -11,6 +11,7 @@ import {
 } from '../../api/backlog.js';
 import { getCourses } from '../../api/courses.js';
 import { getSemesters } from '../../api/semesters.js';
+import { errorMessage as getErrorMessage } from '../../api/errors.js';
 import BacklogSectionCard from './BacklogSectionCard.jsx';
 import {
   meterColor, setStepDone, setSubsectionDone, setSectionDone,
@@ -49,7 +50,7 @@ export default function BacklogWeekDetailPage() {
         }
         return r.data;
       })
-      .catch(() => toast.error('Failed to load week'));
+      .catch((err) => toast.error(getErrorMessage(err, 'Failed to load week')));
 
   useEffect(() => {
     const stored = localStorage.getItem(openKey(weekId));
@@ -66,10 +67,10 @@ export default function BacklogWeekDetailPage() {
   // Courses of this week's semester feed the optional "link a course" dropdown
   useEffect(() => {
     if (!week?.semester) return;
-    getCourses(week.semester).then((r) => setCourses(r.data)).catch(() => {});
+    getCourses(week.semester).then((r) => setCourses(r.data)).catch((err) => toast.error(getErrorMessage(err, 'Failed to load courses')));
     getSemesters()
       .then((r) => setSemester(r.data.find((s) => s._id === week.semester) || null))
-      .catch(() => {});
+      .catch((err) => toast.error(getErrorMessage(err, 'Failed to load semester')));
   }, [week?.semester]);
 
   const toggleOpen = (id) => setOpen((prev) => {
@@ -83,12 +84,12 @@ export default function BacklogWeekDetailPage() {
   // tree so back-to-back clicks can't build on stale state; a failed request
   // resyncs from the server rather than guessing at a rollback.
 
-  const optimistic = async (apply, request, errorMessage) => {
+  const optimistic = async (apply, request, fallbackMessage) => {
     setWeek(apply);
     try {
       await request();
-    } catch {
-      toast.error(errorMessage);
+    } catch (err) {
+      toast.error(getErrorMessage(err, fallbackMessage));
       load();
     }
   };
@@ -122,7 +123,7 @@ export default function BacklogWeekDetailPage() {
       for (const title of titles) created.push((await createStep(subsectionId, { title })).data);
       setWeek((prev) => appendSteps(prev, subsectionId, created));
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Failed to add step');
+      toast.error(getErrorMessage(e, 'Failed to add step'));
       load();
     }
   };
@@ -133,14 +134,14 @@ export default function BacklogWeekDetailPage() {
     setWeek((prev) => renameStepInTree(prev, subsectionId, step._id, trimmed));
     try {
       await updateStep(step._id, { title: trimmed });
-    } catch { toast.error('Failed to rename step'); load(); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to rename step')); load(); }
   };
 
   const removeStep = async (subsectionId, step) => {
     setWeek((prev) => removeStepFromTree(prev, subsectionId, step._id));
     try {
       await deleteStep(step._id);
-    } catch { toast.error('Failed to delete step'); load(); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to delete step')); load(); }
   };
 
   // ─── Sections ─────────────────────────────────────────────
@@ -163,7 +164,7 @@ export default function BacklogWeekDetailPage() {
       closeModal();
       load();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Error');
+      toast.error(getErrorMessage(e));
     } finally { setSaving(false); }
   };
 
@@ -173,7 +174,7 @@ export default function BacklogWeekDetailPage() {
       await deleteSection(section._id);
       toast.success('Section deleted');
       load();
-    } catch { toast.error('Failed to delete section'); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to delete section')); }
   };
 
   // ─── Subsections ──────────────────────────────────────────
@@ -207,7 +208,7 @@ export default function BacklogWeekDetailPage() {
       closeModal();
       load();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Error');
+      toast.error(getErrorMessage(e));
     } finally { setSaving(false); }
   };
 
@@ -217,7 +218,7 @@ export default function BacklogWeekDetailPage() {
       await deleteSubsection(sub._id);
       toast.success('Subsection deleted');
       load();
-    } catch { toast.error('Failed to delete subsection'); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to delete subsection')); }
   };
 
   // ─── Reordering ───────────────────────────────────────────
@@ -228,7 +229,7 @@ export default function BacklogWeekDetailPage() {
     setWeek({ ...week, sections: next });
     try {
       await reorder({ type: 'section', ids: next.map((s) => s._id) });
-    } catch { toast.error('Failed to reorder'); load(); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to reorder')); load(); }
   };
 
   const moveSubsection = async (section, index, direction) => {
@@ -240,7 +241,7 @@ export default function BacklogWeekDetailPage() {
     });
     try {
       await reorder({ type: 'subsection', ids: next.map((s) => s._id) });
-    } catch { toast.error('Failed to reorder'); load(); }
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to reorder')); load(); }
   };
 
   const closeModal = () => { setModal(null); setEditId(null); setParentId(null); };

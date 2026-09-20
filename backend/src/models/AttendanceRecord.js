@@ -29,5 +29,7 @@ const attendanceRecordSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+attendanceRecordSchema.index({ course: 1, updatedAt: -1 });
+
 const AttendanceRecord = mongoose.model('AttendanceRecord', attendanceRecordSchema);
 export default AttendanceRecord;

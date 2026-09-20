@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { MdAdd, MdCalendarMonth, MdArrowForward, MdDelete, MdClose, MdEdit, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import { getMonths, createMonth, deleteMonth, updateMonth } from '../../api/month.js';
+import { errorMessage } from '../../api/errors.js';
 import EmptyState from '../../components/UI/EmptyState.jsx';
 
 const MONTHS_LIST = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -31,7 +32,7 @@ export default function MonthsPage() {
     try {
       const res = await getMonths();
       setMonths(res.data);
-    } catch { toast.error('Failed to load periods'); }
+    } catch (err) { toast.error(errorMessage(err, 'Failed to load periods')); }
     finally { setLoading(false); }
   };
 
@@ -46,7 +47,7 @@ export default function MonthsPage() {
       toast.success('Period created');
       setModal(false);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(errorMessage(err)); }
     finally { setSaving(false); }
   };
 
@@ -54,7 +55,7 @@ export default function MonthsPage() {
     e.preventDefault(); e.stopPropagation();
     if (!confirm('Delete this month and all its expenses?')) return;
     try { await deleteMonth(id); toast.success('Deleted'); load(); }
-    catch { toast.error('Failed to delete'); }
+    catch (err) { toast.error(errorMessage(err, 'Failed to delete')); }
   };
 
   return (
@@ -246,7 +247,7 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
       toast.success('Budget updated');
       setEditingBudget(false);
       onBudgetUpdate();
-    } catch { toast.error('Failed to update budget'); }
+    } catch (err) { toast.error(errorMessage(err, 'Failed to update budget')); }
     finally { setSaving(false); }
   };
 
