@@ -1,48 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
-import {
-  MdDashboard, MdCalendarViewMonth, MdLogout,
-  MdOutlineSchool, MdCircle, MdAccountBalanceWallet, MdMenuBook,
-  MdMenu, MdClose, MdChecklist,
-} from 'react-icons/md';
-import { getSemesters } from '../../api/semesters.js';
+import { Link, useLocation } from 'react-router';
+import { MdLogout, MdOutlineSchool, MdCircle } from 'react-icons/md';
+import { NAV_LINKS, isNavActive } from './navLinks.js';
 
-export default function Sidebar({ user, onLogout }) {
+// Desktop-only navigation (hidden ≤768px, where Topbar + BottomNav take over).
+export default function Sidebar({ user, activeSemester, onLogout }) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [activeSemester, setActiveSemester] = useState(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    // Fetch once per mount — this used to re-run on every route change,
-    // duplicating whatever the destination page was already fetching and
-    // competing for the same (small, serverless) connection pool.
-    getSemesters().then(res => {
-      const active = res.data.find(s => s.isActive) || res.data[0];
-      setActiveSemester(active);
-    }).catch(() => {});
-  }, []);
-
-  // Close drawer on route change
-  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
-
-  const navLinks = [
-    { to: '/',           label: 'Dashboard',     icon: <MdDashboard size={17} /> },
-    { to: '/semesters',  label: 'Semesters',     icon: <MdCalendarViewMonth size={17} /> },
-    { to: '/backlog',    label: 'Backlog',       icon: <MdChecklist size={17} /> },
-    { to: '/expenses',   label: 'Expense Log',   icon: <MdAccountBalanceWallet size={17} /> },
-    { to: '/study',      label: 'Study Log',     icon: <MdMenuBook size={17} /> },
-  ];
-
-  const isActive = (to) =>
-    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
-
-  const handleLogout = () => { onLogout(); navigate('/login'); };
 
   const initials = user?.email ? user.email[0].toUpperCase() : 'A';
 
-  const sidebarContent = (
-    <>
+  return (
+    <aside className="sidebar anim-fade-in">
       {/* Brand */}
       <div className="sidebar-brand">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -55,14 +22,6 @@ export default function Sidebar({ user, onLogout }) {
               <p>Management System</p>
             </div>
           </div>
-          {/* Close button — mobile only */}
-          <button
-            className="sidebar-close-btn"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
-          >
-            <MdClose size={22} color="rgba(255,255,255,0.7)" />
-          </button>
         </div>
 
         {activeSemester && (
@@ -89,13 +48,13 @@ export default function Sidebar({ user, onLogout }) {
       {/* Nav */}
       <nav className="sidebar-nav">
         <span className="sidebar-section-label">Navigation</span>
-        {navLinks.map((link) => (
+        {NAV_LINKS.map((link) => (
           <Link
             key={link.to}
             to={link.to}
-            className={`sidebar-link ${isActive(link.to) ? 'active' : ''}`}
+            className={`sidebar-link ${isNavActive(location.pathname, link.to) ? 'active' : ''}`}
           >
-            {link.icon}
+            <link.Icon size={17} />
             {link.label}
           </Link>
         ))}
@@ -106,51 +65,11 @@ export default function Sidebar({ user, onLogout }) {
         <div className="sidebar-user">
           <div className="sidebar-avatar">{initials}</div>
           <span className="sidebar-user-email">{user?.email || 'User'}</span>
-          <button className="btn-logout" onClick={handleLogout} title="Logout">
+          <button className="btn-logout" onClick={onLogout} title="Logout">
             <MdLogout size={18} />
           </button>
         </div>
       </div>
-    </>
-  );
-
-  return (
-    <>
-      {/* ── Mobile top bar ─────────────────── */}
-      <div className="mobile-topbar">
-        <button
-          className="mobile-hamburger"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-        >
-          <MdMenu size={24} />
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div className="sidebar-brand-icon" style={{ width: 28, height: 28 }}>
-            <MdOutlineSchool color="#fff" size={16} />
-          </div>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 700, color: 'var(--navy)' }}>AcademiQ</span>
-        </div>
-        <div className="sidebar-avatar" style={{ width: 30, height: 30, fontSize: 12 }}>{initials}</div>
-      </div>
-
-      {/* ── Desktop sidebar ────────────────── */}
-      <aside className="sidebar anim-fade-in">
-        {sidebarContent}
-      </aside>
-
-      {/* ── Mobile overlay backdrop ─────────── */}
-      {mobileOpen && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* ── Mobile drawer ───────────────────── */}
-      <aside className={`sidebar sidebar-drawer ${mobileOpen ? 'sidebar-drawer-open' : ''}`}>
-        {sidebarContent}
-      </aside>
-    </>
+    </aside>
   );
 }

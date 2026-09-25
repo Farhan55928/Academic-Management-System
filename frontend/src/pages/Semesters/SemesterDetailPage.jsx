@@ -114,7 +114,7 @@ export default function SemesterDetailPage() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ marginBottom: 20 }}>
+      <div className="m-hide" style={{ marginBottom: 20 }}>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('/semesters')}>
           <MdArrowBack size={15} /> Semesters
         </button>

@@ -98,7 +98,7 @@ export default function SemestersPage() {
               className={`card card-blue-border anim-fade-up delay-${Math.min(i + 1, 5)}`}
               style={{ borderLeftColor: s.isActive ? 'var(--blue)' : 'var(--border-mid)' }}
             >
-              <div className="card-body flex items-center justify-between" style={{ gap: 16 }}>
+              <div className="card-body flex items-center justify-between m-semester-row" style={{ gap: 16 }}>
                 <div style={{ flex: 1 }}>
                   <div className="flex items-center gap-2 mb-1">
                     <MdCalendarToday size={14} style={{ color: 'var(--blue)' }} />
@@ -110,7 +110,7 @@ export default function SemestersPage() {
                   <p className="text-sm text-muted">{s.year}</p>
                 </div>
 
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-center m-semester-actions">
                   {!s.isActive && (
                     <button
                       className="btn btn-outline btn-sm"

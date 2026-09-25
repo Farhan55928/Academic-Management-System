@@ -1,4 +1,5 @@
 import './index.css';
+import { useSyncExternalStore } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from './hooks/useAuth.js';
@@ -15,6 +16,29 @@ import StudyDayDetailPage from './pages/Study/StudyDayDetailPage.jsx';
 import BacklogWeeksPage from './pages/Backlog/BacklogWeeksPage.jsx';
 import BacklogWeekDetailPage from './pages/Backlog/BacklogWeekDetailPage.jsx';
 
+const MOBILE_QUERY = '(max-width: 768px)';
+const subscribeMobile = (cb) => {
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener('change', cb);
+  return () => mql.removeEventListener('change', cb);
+};
+const getIsMobile = () => window.matchMedia(MOBILE_QUERY).matches;
+
+// Toasts sit top-center on phones (top-right collides with the account button)
+function AppToaster() {
+  const isMobile = useSyncExternalStore(subscribeMobile, getIsMobile);
+  return (
+    <Toaster
+      position={isMobile ? 'top-center' : 'top-right'}
+      containerStyle={isMobile ? { top: 'calc(68px + env(safe-area-inset-top))' } : undefined}
+      toastOptions={{
+        style: { fontFamily: 'var(--font-body)', fontSize: 14 },
+        success: { iconTheme: { primary: 'var(--blue)', secondary: '#fff' } }
+      }}
+    />
+  );
+}
+
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -30,10 +54,7 @@ function AppRoutes() {
           <Route path="/login" element={<LoginPage onLogin={login} />} />
           <Route path="*"     element={<Navigate to="/login" replace />} />
         </Routes>
-        <Toaster position="top-right" toastOptions={{
-          style: { fontFamily: 'var(--font-body)', fontSize: 14 },
-          success: { iconTheme: { primary: 'var(--blue)', secondary: '#fff' } }
-        }} />
+        <AppToaster />
       </>
     );
   }
@@ -55,10 +76,7 @@ function AppRoutes() {
           <Route path="*"                          element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
-      <Toaster position="top-right" toastOptions={{
-        style: { fontFamily: 'var(--font-body)', fontSize: 14 },
-        success: { iconTheme: { primary: 'var(--blue)', secondary: '#fff' } }
-      }} />
+      <AppToaster />
     </>
   );
 }

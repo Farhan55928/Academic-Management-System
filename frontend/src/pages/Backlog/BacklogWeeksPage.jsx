@@ -107,7 +107,7 @@ export default function BacklogWeeksPage() {
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
               <div>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 8 }}>
+                <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 8 }}>
                   Backlog
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 15, fontWeight: 400 }}>
@@ -117,6 +117,7 @@ export default function BacklogWeeksPage() {
               <button
                 onClick={openAdd}
                 disabled={semesters.length === 0}
+                className="m-hero-cta"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   background: '#3b82f6', color: '#fff',
@@ -134,20 +135,20 @@ export default function BacklogWeeksPage() {
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: 'flex', gap: 24, marginTop: 40, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <div className="m-chip-row" style={{ display: 'flex', gap: 24, marginTop: 40, flexWrap: 'wrap', alignItems: 'flex-end' }}>
               {[
                 { label: 'Steps Complete', value: `${totals.done}/${totals.total}`, color: '#60a5fa' },
                 { label: 'Weeks Tracked',  value: `${weeks.length}`,                color: '#34d399' },
                 { label: 'Still Pending',  value: `${totals.pending}`,              color: totals.pending > 0 ? '#fbbf24' : '#34d399' },
               ].map(stat => (
-                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '20px 32px' }}>
+                <div key={stat.label} className="m-chip" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '20px 32px' }}>
                   <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>{stat.label}</p>
-                  <p style={{ fontSize: 30, fontWeight: 900, color: stat.color, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</p>
+                  <p className="m-chip-value" style={{ fontSize: 30, fontWeight: 900, color: stat.color, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</p>
                 </div>
               ))}
 
               {semesters.length > 0 && (
-                <div style={{ marginLeft: 'auto' }}>
+                <div className="m-chip-full" style={{ marginLeft: 'auto' }}>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>
                     Semester
                   </label>
@@ -160,6 +161,7 @@ export default function BacklogWeeksPage() {
                       padding: '16px 20px', color: '#fff', fontSize: 14, fontWeight: 600,
                       outline: 'none', cursor: 'pointer', minWidth: 200,
                     }}
+                    className="m-full"
                   >
                     <option value="" style={{ background: '#1a2f5e' }}>All semesters</option>
                     {semesters.map(s => (
@@ -191,7 +193,7 @@ export default function BacklogWeeksPage() {
               <div style={{ width: 40, height: 40, border: '3px solid #dbeafe', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             </div>
           ) : semesters.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 48, marginBottom: 16 }}>📅</p>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>No Semesters Yet</h3>
               <p style={{ color: '#64748b', marginBottom: 24 }}>Backlog weeks belong to a semester. Create one first.</p>
@@ -200,7 +202,7 @@ export default function BacklogWeeksPage() {
               </button>
             </div>
           ) : weeks.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 48, marginBottom: 16 }}>🗂️</p>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>No Weeks Yet</h3>
               <p style={{ color: '#64748b', marginBottom: 24 }}>Create a week, then add a section per course and break each one into subsections and steps.</p>
@@ -227,19 +229,19 @@ export default function BacklogWeeksPage() {
 
       {/* ── Modal ───────────────────────────────────── */}
       {modal && (
-        <div style={{
+        <div className="m-sheet-overlay" style={{
           position: 'fixed', inset: 0, zIndex: 9999,
           background: 'rgba(10, 18, 36, 0.75)', backdropFilter: 'blur(10px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
         }}>
-          <div style={{
+          <div className="m-sheet m-sheet-dark" style={{
             background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
             backdropFilter: 'blur(32px)',
             border: '1px solid rgba(255,255,255,0.18)',
             borderRadius: 32, width: '100%', maxWidth: 480,
             boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden',
           }}>
-            <div style={{ padding: '32px 40px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '32px 40px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>
                   {editId ? 'Edit Week' : 'New Week'}
@@ -254,7 +256,7 @@ export default function BacklogWeeksPage() {
             </div>
 
             {/* Week number hero */}
-            <div style={{ padding: '28px 40px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="m-sheet-section" style={{ padding: '28px 40px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Week Number</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                 <span style={{ fontSize: 30, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>#</span>
@@ -262,13 +264,13 @@ export default function BacklogWeeksPage() {
                   type="number" min="1" autoFocus
                   value={form.weekNumber}
                   onChange={e => setForm(f => ({ ...f, weekNumber: +e.target.value }))}
-                  style={{ background: 'transparent', border: 'none', fontSize: 52, fontWeight: 900, color: '#fff', outline: 'none', width: 160, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}
+                  className="m-amount-input" style={{ background: 'transparent', border: 'none', fontSize: 52, fontWeight: 900, color: '#fff', outline: 'none', width: 160, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}
                   placeholder="1"
                 />
               </div>
             </div>
 
-            <div style={{ padding: '24px 40px' }}>
+            <div className="m-sheet-body" style={{ padding: '24px 40px' }}>
               <label style={{ display: 'block', fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>
                 Semester
               </label>
@@ -285,7 +287,7 @@ export default function BacklogWeeksPage() {
               </div>
             </div>
 
-            <div style={{ padding: '0 40px 36px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+            <div className="m-sheet-footer" style={{ padding: '0 40px 36px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
               <button onClick={() => setModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                 Cancel
               </button>
@@ -315,6 +317,7 @@ function WeekCard({ week, gradient, semesterLabel, onDelete, onEdit }) {
       to={`/backlog/${week._id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="m-card"
       style={{
         background: '#ffffff',
         border: hovered ? `2px solid ${accent}4d` : '2px solid transparent',
@@ -338,7 +341,7 @@ function WeekCard({ week, gradient, semesterLabel, onDelete, onEdit }) {
 
       <div>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div style={{
+          <div className="m-card-icon" style={{
             width: 56, height: 56,
             background: week.isDone ? 'linear-gradient(135deg, #065f46 0%, #10b981 100%)' : gradient,
             borderRadius: 18,
@@ -359,7 +362,7 @@ function WeekCard({ week, gradient, semesterLabel, onDelete, onEdit }) {
           ) : null}
         </div>
 
-        <h3 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#0f172a', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <h3 className="m-card-title" style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#0f172a', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Week <span style={{ fontVariantNumeric: 'tabular-nums' }}>{week.weekNumber}</span>
         </h3>
         <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8' }}>
@@ -367,7 +370,7 @@ function WeekCard({ week, gradient, semesterLabel, onDelete, onEdit }) {
         </p>
       </div>
 
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16 }}>
+      <div className="m-card-foot m-card-foot-stack" style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 4 }}>Progress</p>
           <p style={{ fontSize: 20, fontWeight: 800, color: total > 0 ? '#0f172a' : '#cbd5e1', fontVariantNumeric: 'tabular-nums', marginBottom: 10 }}>
@@ -382,6 +385,7 @@ function WeekCard({ week, gradient, semesterLabel, onDelete, onEdit }) {
           <button
             onClick={(e) => onEdit(e, week)}
             title="Edit week"
+            className="m-touch-visible"
             style={{ width: 44, height: 44, borderRadius: 14, background: '#fafafa', border: '1px solid #e2e8f0', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}
           >
             <MdEdit size={18} />

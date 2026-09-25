@@ -100,7 +100,7 @@ export default function StudyDaysPage() {
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 20 }}>
             <div>
-              <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 36, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1 }}>
+              <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 36, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.1 }}>
                 Study Management
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.45)', marginTop: 8, fontSize: 15 }}>
@@ -109,6 +109,7 @@ export default function StudyDaysPage() {
             </div>
             <button
               onClick={() => setModal(true)}
+              className="m-hero-cta"
               style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', padding: '14px 24px', borderRadius: 18, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(59,130,246,0.4)', transition: 'all 0.2s' }}
             >
               <MdAdd size={20} /> Log New Day
@@ -116,21 +117,21 @@ export default function StudyDaysPage() {
           </div>
 
           {/* ── Stats Bar ─────────────────────────────── */}
-          <div className="stats-grid" style={{ marginTop: 36 }}>
+          <div className="stats-grid m-stats-strip m-stats-dark" style={{ marginTop: 36 }}>
             {[
               { label: 'Total Days Logged', value: stats.totalDays, icon: '📅' },
               { label: 'Days This Week', value: stats.thisWeek, icon: '🔥' },
               { label: 'Avg Day Rating', value: stats.avgRating, icon: '⭐' },
             ].map(s => (
-              <div key={s.label} style={{
+              <div key={s.label} className="m-stat-card" style={{
                 background: 'rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 20,
                 padding: '20px 24px',
                 backdropFilter: 'blur(12px)',
               }}>
-                <div style={{ fontSize: 24, marginBottom: 8 }}>{s.icon}</div>
-                <p style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: 0 }}>{s.value}</p>
+                <div className="m-stat-icon" style={{ fontSize: 24, marginBottom: 8 }}>{s.icon}</div>
+                <p className="m-stat-value" style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: 0 }}>{s.value}</p>
                 <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>{s.label}</p>
               </div>
             ))}
@@ -142,7 +143,7 @@ export default function StudyDaysPage() {
       <div className="content-section" style={{ marginTop: -40, position: 'relative', zIndex: 1 }}>
 
         {days.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: 28, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+          <div className="m-empty" style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: 28, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>📖</div>
             <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1e293b', margin: '0 0 8px' }}>No Study Days Yet</h3>
             <p style={{ color: '#64748b', fontSize: 14, marginBottom: 24 }}>Click "Log New Day" to start tracking your study sessions.</p>
@@ -151,7 +152,7 @@ export default function StudyDaysPage() {
             </button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
+          <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
             {days.map((day, i) => {
               const d = new Date(day.date);
               const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
@@ -161,7 +162,7 @@ export default function StudyDaysPage() {
 
               return (
                 <Link key={day._id} to={`/study/${day._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{
+                  <div className="m-card" style={{
                     background: DAY_GRADIENTS[i % DAY_GRADIENTS.length],
                     borderRadius: 28,
                     padding: '28px 28px 24px',
@@ -187,7 +188,7 @@ export default function StudyDaysPage() {
                         <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: 6 }}>
                           {dayName}
                         </p>
-                        <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>{dateStr}</h3>
+                        <h3 className="m-card-title-sm" style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>{dateStr}</h3>
                       </div>
                       {rating && (
                         <div style={{
@@ -205,8 +206,8 @@ export default function StudyDaysPage() {
                     </div>
 
                     {/* Bottom row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
-                      <div style={{ display: 'flex', gap: 16 }}>
+                    <div className="m-card-foot" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
+                      <div className="m-wrap" style={{ display: 'flex', gap: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <MdTimer size={16} color="rgba(255,255,255,0.5)" />
                           <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
@@ -223,7 +224,7 @@ export default function StudyDaysPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <button
                           onClick={(e) => handleDelete(e, day._id)}
-                          style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: 'rgba(239,68,68,0.8)', borderRadius: 10, padding: '6px 10px', cursor: 'pointer', fontSize: 13 }}
+                          className="m-tap" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: 'rgba(239,68,68,0.8)', borderRadius: 10, padding: '6px 10px', cursor: 'pointer', fontSize: 13 }}
                         >
                           🗑
                         </button>
@@ -243,13 +244,13 @@ export default function StudyDaysPage() {
 
       {/* ── Modal: Add New Day ────────────────────── */}
       {modal && (
-        <div style={{
+        <div className="m-sheet-overlay" style={{
           position: 'fixed', inset: 0, zIndex: 9999,
           background: 'rgba(10, 18, 36, 0.75)',
           backdropFilter: 'blur(10px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
         }}>
-          <div style={{
+          <div className="m-sheet m-sheet-dark" style={{
             background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
             backdropFilter: 'blur(32px)',
             border: '1px solid rgba(255,255,255,0.18)',
@@ -258,7 +259,7 @@ export default function StudyDaysPage() {
             overflow: 'hidden',
           }}>
             {/* Modal Header */}
-            <div style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>New Entry</p>
                 <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>Log Study Day</h3>
@@ -269,7 +270,7 @@ export default function StudyDaysPage() {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '24px 32px 28px' }}>
+            <div className="m-sheet-body" style={{ padding: '24px 32px 28px' }}>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
                   Date
@@ -284,7 +285,7 @@ export default function StudyDaysPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+              <div className="m-sheet-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
                 <button onClick={() => setModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '11px 22px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Cancel
                 </button>

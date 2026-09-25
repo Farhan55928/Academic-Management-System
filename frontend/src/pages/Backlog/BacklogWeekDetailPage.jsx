@@ -279,7 +279,7 @@ export default function BacklogWeekDetailPage() {
         }}>
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <Link to="/backlog" className="no-print" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(96,165,250,0.8)', fontSize: 13, fontWeight: 700, marginBottom: 20, textDecoration: 'none' }}>
+            <Link to="/backlog" className="no-print m-hide" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(96,165,250,0.8)', fontSize: 13, fontWeight: 700, marginBottom: 20, textDecoration: 'none' }}>
               <MdArrowBack size={18} /> Back to Backlog
             </Link>
             <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(96,165,250,0.8)', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -287,14 +287,14 @@ export default function BacklogWeekDetailPage() {
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
               <div>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 44, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 6 }}>
+                <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 44, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 6 }}>
                   Week <span style={{ fontVariantNumeric: 'tabular-nums' }}>{week.weekNumber}</span>
                 </h1>
                 <p className="no-print" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
                   {total > 0 ? `${done} of ${total} steps complete` : 'Nothing tracked yet — add a section to begin'}
                 </p>
               </div>
-              <div className="no-print" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <div className="no-print m-hero-actions" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <button
                   onClick={() => window.print()}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
@@ -314,10 +314,10 @@ export default function BacklogWeekDetailPage() {
 
         <div className="content-section" style={{ paddingBottom: 60 }}>
           {/* ── Summary Cards ─────────────────────────── */}
-          <div className="stats-grid no-print" style={{ marginBottom: 36 }}>
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${meterColor(pct)}` }}>
+          <div className="stats-grid no-print m-stats-strip" style={{ marginBottom: 36 }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${meterColor(pct)}` }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Steps Complete</p>
-              <p style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+              <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
                 {done}<span style={{ fontSize: 18, fontWeight: 600, color: '#94a3b8' }}> / {total}</span>
               </p>
               <div style={{ marginTop: 10, background: '#f1f5f9', borderRadius: 999, height: 6, overflow: 'hidden' }}>
@@ -326,16 +326,16 @@ export default function BacklogWeekDetailPage() {
               <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>{pct}% done</p>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #6366f1' }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #6366f1' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Sections</p>
-              <p style={{ fontSize: 32, fontWeight: 900, color: '#0f172a' }}>
+              <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: '#0f172a' }}>
                 {week.sections.length} <span style={{ fontSize: 16, fontWeight: 500, color: '#94a3b8' }}>courses</span>
               </p>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${pendingSubs > 0 ? '#f59e0b' : '#10b981'}` }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${pendingSubs > 0 ? '#f59e0b' : '#10b981'}` }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Still Pending</p>
-              <p style={{ fontSize: 32, fontWeight: 900, color: pendingSubs > 0 ? '#f59e0b' : '#10b981' }}>
+              <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: pendingSubs > 0 ? '#f59e0b' : '#10b981' }}>
                 {pendingSubs} <span style={{ fontSize: 16, fontWeight: 500, color: '#94a3b8' }}>items</span>
               </p>
             </div>
@@ -365,7 +365,7 @@ export default function BacklogWeekDetailPage() {
 
           {/* ── Tree ──────────────────────────────────── */}
           {week.sections.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 28, padding: '80px 40px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ background: '#fff', borderRadius: 28, padding: '80px 40px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 52, marginBottom: 16 }}>📚</p>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Empty Week</h3>
               <p style={{ color: '#64748b', marginBottom: 28 }}>Add a section per course, then break each one into subsections and steps.</p>
@@ -432,10 +432,10 @@ export default function BacklogWeekDetailPage() {
 
 function GlassModal({ eyebrow, title, onClose, children, footer, maxWidth = 500 }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+    <div className="m-sheet-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
       onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
-        <div style={{ padding: '28px 36px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="m-sheet m-sheet-dark" style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+        <div className="m-sheet-header" style={{ padding: '28px 36px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>{eyebrow}</p>
             <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>{title}</h3>
@@ -444,8 +444,8 @@ function GlassModal({ eyebrow, title, onClose, children, footer, maxWidth = 500 
             <MdClose size={20} />
           </button>
         </div>
-        <div style={{ padding: '24px 36px' }}>{children}</div>
-        <div style={{ padding: '4px 36px 32px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>{footer}</div>
+        <div className="m-sheet-body" style={{ padding: '24px 36px' }}>{children}</div>
+        <div className="m-sheet-footer" style={{ padding: '4px 36px 32px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>{footer}</div>
       </div>
     </div>
   );

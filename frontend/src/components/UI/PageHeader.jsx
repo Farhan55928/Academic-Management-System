@@ -7,7 +7,7 @@ export default function PageHeader({ eyebrow, title, subtitle, actions }) {
           <h1>{title}</h1>
           {subtitle && <p className="page-header-sub">{subtitle}</p>}
         </div>
-        {actions && <div className="flex gap-2 items-center">{actions}</div>}
+        {actions && <div className="flex gap-2 items-center page-header-actions">{actions}</div>}
       </div>
       <hr className="page-header-rule" />
     </div>

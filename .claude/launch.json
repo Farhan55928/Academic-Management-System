@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend", "run", "start"],
+      "port": 9000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev", "--", "--port", "5173", "--strictPort"],
+      "port": 5173
+    },
+    {
+      "name": "frontend-baseline",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Users/Lenovo/AppData/Local/Temp/claude/D--VSCODE-WEB-PROJECTS-AMS/6cc703dc-dd8c-47a0-a29b-3b44326126a5/scratchpad/baseline/frontend", "run", "dev", "--", "--port", "5174", "--strictPort"],
+      "port": 5174
+    }
+  ]
+}

@@ -115,7 +115,7 @@ export default function ExpensesPage() {
         }}>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <Link to="/expenses" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(96,165,250,0.8)', fontSize: 13, fontWeight: 700, marginBottom: 20, textDecoration: 'none' }}>
+            <Link to="/expenses" className="m-hide" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(96,165,250,0.8)', fontSize: 13, fontWeight: 700, marginBottom: 20, textDecoration: 'none' }}>
               <MdArrowBack size={18} /> Back to Monthly Records
             </Link>
             <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(96,165,250,0.8)', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -123,13 +123,14 @@ export default function ExpensesPage() {
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
               <div>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 44, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 6 }}>
+                <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 44, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 6 }}>
                   {month.name} Ledger
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Daily spending records for {month.name} {month.year}</p>
               </div>
               <button
                 onClick={openAdd}
+                className="m-hero-cta"
                 style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#3b82f6', color: '#fff', padding: '14px 28px', borderRadius: 16, border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 8px 24px rgba(59,130,246,0.4)' }}
               >
                 <MdAdd size={22} /> Add Expense
@@ -140,22 +141,22 @@ export default function ExpensesPage() {
 
         <div className="content-section" style={{ paddingBottom: 60 }}>
           {/* ── Summary Cards ─────────────────────────── */}
-          <div className="stats-grid" style={{ marginBottom: 36 }}>
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #3b82f6' }}>
+          <div className="stats-grid m-stats-strip" style={{ marginBottom: 36 }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #3b82f6' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Monthly Total</p>
-              <p style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>৳{monthlyTotal.toLocaleString()}</p>
+              <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>৳{monthlyTotal.toLocaleString()}</p>
             </div>
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #10b981' }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: '4px solid #10b981' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>Transactions</p>
-              <p style={{ fontSize: 32, fontWeight: 900, color: '#0f172a' }}>{expenses.length} <span style={{ fontSize: 16, fontWeight: 500, color: '#94a3b8' }}>records</span></p>
+              <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: '#0f172a' }}>{expenses.length} <span style={{ fontSize: 16, fontWeight: 500, color: '#94a3b8' }}>records</span></p>
             </div>
-            <div style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${budgetColor}` }}>
+            <div className="m-stat-card" style={{ background: '#fff', borderRadius: 24, padding: '28px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', borderTop: `4px solid ${budgetColor}` }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>
                 {month.budget > 0 ? 'Budget Remaining' : 'Target Budget'}
               </p>
               {month.budget > 0 ? (
                 <>
-                  <p style={{ fontSize: 32, fontWeight: 900, color: budgetUsedPct > 90 ? '#ef4444' : '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+                  <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: budgetUsedPct > 90 ? '#ef4444' : '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
                     ৳{(month.budget - monthlyTotal).toLocaleString()}
                   </p>
                   <div style={{ marginTop: 10, background: '#f1f5f9', borderRadius: 999, height: 6, overflow: 'hidden' }}>
@@ -164,14 +165,14 @@ export default function ExpensesPage() {
                   <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{budgetUsedPct}% of ৳{month.budget.toLocaleString()} used</p>
                 </>
               ) : (
-                <p style={{ fontSize: 32, fontWeight: 900, color: '#94a3b8' }}>Not set</p>
+                <p className="m-stat-value" style={{ fontSize: 32, fontWeight: 900, color: '#94a3b8' }}>Not set</p>
               )}
             </div>
           </div>
 
           {/* ── Expense Log ───────────────────────────── */}
           {expenses.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 28, padding: '80px 40px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ background: '#fff', borderRadius: 28, padding: '80px 40px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 52, marginBottom: 16 }}>✨</p>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Empty Ledger</h3>
               <p style={{ color: '#64748b', marginBottom: 28 }}>Start logging your daily expenses to gain financial insights.</p>
@@ -180,13 +181,13 @@ export default function ExpensesPage() {
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
+            <div className="m-gap-24" style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
               {groupedData.map(group => (
                 <div key={group.dateStr}>
                   {/* Day Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div className="m-day-head" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 16, background: '#1a2f5e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="m-day-badge" style={{ width: 52, height: 52, borderRadius: 16, background: '#1a2f5e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>
                           {new Date(group.dateStr).getDate()}
                         </span>
@@ -200,7 +201,7 @@ export default function ExpensesPage() {
                         </p>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', padding: '8px 20px', borderRadius: 14 }}>
+                    <div className="m-day-total" style={{ textAlign: 'right', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', padding: '8px 20px', borderRadius: 14 }}>
                       <p style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 2 }}>Day Total</p>
                       <p style={{ fontSize: 20, fontWeight: 900, color: '#1a2f5e', fontVariantNumeric: 'tabular-nums' }}>৳{group.total.toLocaleString()}</p>
                     </div>
@@ -221,10 +222,10 @@ export default function ExpensesPage() {
 
       {/* ── Expense Modal ─────────────────────────────── */}
       {modal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 500, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+        <div className="m-sheet-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div className="m-sheet m-sheet-dark" style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 500, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
             {/* Header */}
-            <div style={{ padding: '28px 36px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '28px 36px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>{editId ? 'Edit Entry' : 'New Entry'}</p>
                 <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>
@@ -237,22 +238,22 @@ export default function ExpensesPage() {
             </div>
 
             {/* Amount Hero */}
-            <div style={{ padding: '28px 36px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="m-sheet-section" style={{ padding: '28px 36px 20px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Transaction Amount</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <span style={{ fontSize: 40, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>৳</span>
                 <input
                   type="number" autoFocus step="0.01"
                   value={form.amount} onChange={e => setForm(f => ({ ...f, amount: +e.target.value }))}
-                  style={{ background: 'transparent', border: 'none', fontSize: 52, fontWeight: 900, color: '#fff', outline: 'none', width: '200px', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}
+                  className="m-amount-input" style={{ background: 'transparent', border: 'none', fontSize: 52, fontWeight: 900, color: '#fff', outline: 'none', width: '200px', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}
                   placeholder="0"
                 />
               </div>
             </div>
 
             {/* Fields */}
-            <div style={{ padding: '20px 36px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+            <div className="m-sheet-body" style={{ padding: '20px 36px' }}>
+              <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                 <ModalField label="Category">
                   <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 15, fontWeight: 600, outline: 'none', width: '100%', padding: '14px 16px' }}>
                     {Object.keys(CATEGORIES).map(c => <option key={c} value={c} style={{ background: '#1a2f5e' }}>{c}</option>)}
@@ -273,7 +274,7 @@ export default function ExpensesPage() {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '12px 36px 32px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+            <div className="m-sheet-footer" style={{ padding: '12px 36px 32px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
               <button onClick={() => setModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '12px 22px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                 Discard
               </button>
@@ -306,6 +307,7 @@ function ExpenseRow({ item, onEdit, onDelete }) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="m-expense-row"
       style={{
         background: hovered ? '#fff' : '#fff',
         border: hovered ? '2px solid rgba(59,130,246,0.2)' : '2px solid transparent',
@@ -316,13 +318,13 @@ function ExpenseRow({ item, onEdit, onDelete }) {
         gap: 20,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ width: 52, height: 52, borderRadius: 16, background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, border: `1px solid ${cat.color}20` }}>
+      <div className="m-expense-main" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="m-expense-icon" style={{ width: 52, height: 52, borderRadius: 16, background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, border: `1px solid ${cat.color}20` }}>
           {cat.icon}
         </div>
         <div>
           <p style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>{item.title}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '2px 10px', borderRadius: 999, background: cat.bg, color: cat.color }}>
               {item.category}
             </span>
@@ -330,11 +332,11 @@ function ExpenseRow({ item, onEdit, onDelete }) {
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <p style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+      <div className="m-expense-side" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <p className="m-expense-amount" style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
           ৳{item.amount.toLocaleString()}
         </p>
-        <div style={{ display: 'flex', gap: 8, opacity: hovered ? 1 : 0, transform: hovered ? 'none' : 'translateX(10px)', transition: 'all 0.2s ease' }}>
+        <div className="m-touch-visible" style={{ display: 'flex', gap: 8, opacity: hovered ? 1 : 0, transform: hovered ? 'none' : 'translateX(10px)', transition: 'all 0.2s ease' }}>
           <button
             onClick={() => onEdit(item)}
             style={{ width: 40, height: 40, borderRadius: 12, background: '#eff6ff', border: '1px solid #dbeafe', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}

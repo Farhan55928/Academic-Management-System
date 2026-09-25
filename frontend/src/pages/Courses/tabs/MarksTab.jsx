@@ -185,7 +185,7 @@ export default function MarksTab({ courseId }) {
             </div>
           }
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             <div className="glass-form-group">
               <label className="glass-label">Type</label>
               <div className="glass-input-wrapper">

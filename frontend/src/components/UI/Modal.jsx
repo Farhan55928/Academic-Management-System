@@ -4,8 +4,9 @@ import { MdClose } from 'react-icons/md';
 
 export default function Modal({ title, onClose, children, footer, premium = false }) {
   useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'auto'; };
+    return () => { document.body.style.overflow = prevOverflow; };
   }, []);
 
   const overlayClass = premium ? 'glass-overlay' : 'modal-overlay';

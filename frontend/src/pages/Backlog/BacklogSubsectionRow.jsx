@@ -109,7 +109,7 @@ export default function BacklogSubsectionRow({
           </span>
         )}
 
-        <div className="no-print" style={{ display: 'flex', gap: 5, flexShrink: 0, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}>
+        <div className="no-print backlog-sub-actions" style={{ display: 'flex', gap: 5, flexShrink: 0, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}>
           <MiniBtn title="Move up" disabled={index === 0} onClick={() => onMove(index, -1)}>
             <MdArrowUpward size={14} />
           </MiniBtn>

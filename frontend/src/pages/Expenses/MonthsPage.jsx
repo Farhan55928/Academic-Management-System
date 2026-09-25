@@ -80,7 +80,7 @@ export default function MonthsPage() {
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
               <div>
-                <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 8 }}>
+                <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 48, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 8 }}>
                   Monthly Records
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 15, fontWeight: 400 }}>
@@ -89,6 +89,7 @@ export default function MonthsPage() {
               </div>
               <button
                 onClick={() => setModal(true)}
+                className="m-hero-cta"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   background: '#3b82f6', color: '#fff',
@@ -105,15 +106,15 @@ export default function MonthsPage() {
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: 'flex', gap: 24, marginTop: 40, flexWrap: 'wrap' }}>
+            <div className="m-chip-row" style={{ display: 'flex', gap: 24, marginTop: 40, flexWrap: 'wrap' }}>
               {[
                 { label: 'Total Budget', value: `৳${totalBudget.toLocaleString()}`, color: '#60a5fa' },
                 { label: 'Active Periods', value: `${months.length}`, color: '#34d399' },
                 { label: 'Avg. Monthly', value: months.length ? `৳${Math.round(totalBudget / months.length).toLocaleString()}` : '৳0', color: '#a78bfa' },
               ].map(stat => (
-                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '20px 32px' }}>
+                <div key={stat.label} className="m-chip" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '20px 32px' }}>
                   <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>{stat.label}</p>
-                  <p style={{ fontSize: 30, fontWeight: 900, color: stat.color, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</p>
+                  <p className="m-chip-value" style={{ fontSize: 30, fontWeight: 900, color: stat.color, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', lineHeight: 1 }}>{stat.value}</p>
                 </div>
               ))}
             </div>
@@ -127,7 +128,7 @@ export default function MonthsPage() {
               <div className="loading loading-spinner loading-lg text-blue" />
             </div>
           ) : months.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ background: '#fff', borderRadius: 24, padding: 80, textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 48, marginBottom: 16 }}>📅</p>
               <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>No Financial Periods</h3>
               <p style={{ color: '#64748b', marginBottom: 24 }}>Create your first month to start tracking daily expenses.</p>
@@ -153,13 +154,13 @@ export default function MonthsPage() {
 
       {/* ── Modal ─────────────────────────────────────── */}
       {modal && (
-        <div style={{
+        <div className="m-sheet-overlay" style={{
           position: 'fixed', inset: 0, zIndex: 9999,
           background: 'rgba(10, 18, 36, 0.75)',
           backdropFilter: 'blur(10px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
         }}>
-          <div style={{
+          <div className="m-sheet m-sheet-dark" style={{
             background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
             backdropFilter: 'blur(32px)',
             border: '1px solid rgba(255,255,255,0.18)',
@@ -168,7 +169,7 @@ export default function MonthsPage() {
             overflow: 'hidden',
           }}>
             {/* Modal Header */}
-            <div style={{ padding: '32px 40px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '32px 40px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>New Period</p>
                 <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: '#fff', margin: 0 }}>Setup Financial Period</h3>
@@ -179,7 +180,7 @@ export default function MonthsPage() {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '28px 40px' }}>
+            <div className="m-sheet-body" style={{ padding: '28px 40px' }}>
               {[
                 { label: 'Month', type: 'select', key: 'name', options: MONTHS_LIST },
                 { label: 'Academic Year', type: 'number', key: 'year', placeholder: '2026' },
@@ -214,7 +215,7 @@ export default function MonthsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div style={{ padding: '0 40px 36px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+            <div className="m-sheet-footer" style={{ padding: '0 40px 36px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
               <button onClick={() => setModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                 Cancel
               </button>
@@ -256,6 +257,7 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
       to={`/expenses/${month._id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="m-card"
       style={{
         display: 'block',
         background: hovered ? 'rgba(255,255,255,0.98)' : '#ffffff',
@@ -281,7 +283,7 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
 
       <div>
         {/* Icon Badge */}
-        <div style={{
+        <div className="m-card-icon" style={{
           width: 56, height: 56,
           background: gradient,
           borderRadius: 18,
@@ -292,7 +294,7 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
           <MdCalendarMonth size={30} color="#fff" />
         </div>
 
-        <h3 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#0f172a', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <h3 className="m-card-title" style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#0f172a', marginBottom: 6, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           {month.name}{' '}
           <span style={{ fontWeight: 400, color: '#94a3b8' }}>{month.year}</span>
         </h3>
@@ -301,8 +303,8 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
         </p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9' }}>
-        <div style={{ flex: 1, marginRight: 12 }}>
+      <div className="m-card-foot" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, paddingTop: 20, borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ flex: 1, marginRight: 12, minWidth: 0 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginBottom: 4 }}>Target Budget</p>
           {editingBudget ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={e => e.preventDefault()}>
@@ -329,8 +331,9 @@ function MonthCard({ month, gradient, onDelete, onBudgetUpdate }) {
                 {month.budget > 0 ? `৳${Number(month.budget).toLocaleString()}` : 'Not set'}
               </p>
               <button
+                className="m-touch-visible"
                 onClick={e => { e.preventDefault(); e.stopPropagation(); setEditingBudget(true); setBudgetInput(month.budget || ''); }}
-                style={{ width: 28, height: 28, borderRadius: 8, background: 'transparent', border: '1px solid #e2e8f0', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}
+                style={{ width: 28, height: 28, borderRadius: 8, background: 'transparent', border: '1px solid #e2e8f0', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: hovered ? 1 : 0, transition: 'opacity 0.2s' }}
               >
                 <MdEdit size={14} />
               </button>

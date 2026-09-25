@@ -182,7 +182,7 @@ export default function StudyDayDetailPage() {
       }}>
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <Link to="/study" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
+          <Link to="/study" className="m-hide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
             <MdArrowBack size={16} /> Back to Study Log
           </Link>
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.25em', color: 'rgba(96,165,250,0.9)', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -190,12 +190,12 @@ export default function StudyDayDetailPage() {
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16 }}>
             <div>
-              <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 32, fontWeight: 900, color: '#fff', margin: 0 }}>
+              <h1 className="m-hero-title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 32, fontWeight: 900, color: '#fff', margin: 0 }}>
                 {dateLabel}
               </h1>
               {overview && <div style={{ marginTop: 10 }}><RatingBadge rating={overview.rating} /></div>}
             </div>
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div className="m-hero-actions" style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={openOverviewModal}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, background: overview ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '12px 20px', borderRadius: 16, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
@@ -212,16 +212,16 @@ export default function StudyDayDetailPage() {
           </div>
 
           {/* Stats row */}
-          <div className="stats-grid" style={{ marginTop: 32 }}>
+          <div className="stats-grid m-stats-strip m-stats-dark" style={{ marginTop: 32 }}>
             {[
               { label: 'Total Hours', value: stats.totalHours + 'h', icon: <MdTimer size={22} color="rgba(96,165,250,0.8)" /> },
               { label: 'Productive Hours', value: stats.productiveHours + 'h', icon: <MdTrendingUp size={22} color="rgba(34,197,94,0.8)" /> },
               { label: 'Hours Wasted', value: stats.wastedHours + 'h', icon: <MdInfo size={22} color="rgba(239,68,68,0.8)" /> },
             ].map(s => (
-              <div key={s.label} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '18px 22px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div key={s.label} className="m-stat-card" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '18px 22px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 16 }}>
                 {s.icon}
                 <div>
-                  <p style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>{s.value}</p>
+                  <p className="m-stat-value" style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>{s.value}</p>
                   <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '3px 0 0' }}>{s.label}</p>
                 </div>
               </div>
@@ -248,7 +248,7 @@ export default function StudyDayDetailPage() {
               </div>
             </div>
 
-            <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'stretch' }}>
+            <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'stretch' }} className="m-overview-grid">
               {/* Rating */}
               <div style={{ padding: '24px', borderRight: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div style={{ background: 'linear-gradient(135deg, #1a2f5e, #3b82f6)', borderRadius: 16, padding: 14 }}>
@@ -287,7 +287,7 @@ export default function StudyDayDetailPage() {
           </h2>
 
           {sessions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 24, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <div className="m-empty" style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: 24, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>⏱️</div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b' }}>No Sessions Yet</h3>
               <p style={{ color: '#64748b', fontSize: 14, marginBottom: 20 }}>Add your first study session to track your progress.</p>
@@ -300,14 +300,14 @@ export default function StudyDayDetailPage() {
               {sessions.map((sess, si) => (
                 <div key={sess._id} style={{ background: '#fff', borderRadius: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
                   {/* Session header */}
-                  <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #1e3a6e, #1a2f5e)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="m-session-head" style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #1e3a6e, #1a2f5e)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                       <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '8px 14px' }}>
                         <MdSchedule size={20} color="#93c5fd" />
                       </div>
                       <div>
                         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', margin: '0 0 2px', textTransform: 'uppercase' }}>Session {si + 1}</p>
-                        <p style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>
+                        <p className="m-session-time" style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>
                           {formatTime(sess.startTime)} → {formatTime(sess.endTime)}
                         </p>
                       </div>
@@ -326,7 +326,7 @@ export default function StudyDayDetailPage() {
                   </div>
 
                   {/* Hour blocks */}
-                  <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div className="m-pad-16" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {sess.hourBlocks.map((block, bi) => {
                       const blockStart = (() => {
                         const [h,m] = sess.startTime.split(':').map(Number);
@@ -355,7 +355,7 @@ export default function StudyDayDetailPage() {
                           }}>
                             {block.wasted ? '💤' : (bi + 1)}
                           </div>
-                          <div style={{ flex: 1 }}>
+                          <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                               <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>
                                 {formatTime(blockStart)} – {formatTime(blockEnd)}
@@ -386,11 +386,11 @@ export default function StudyDayDetailPage() {
 
       {/* ══ Session Modal ════════════════════════════════════════ */}
       {sessionModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 560, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 64px rgba(0,0,0,0.5)' }}>
+        <div className="m-sheet-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div className="m-sheet m-sheet-dark" style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 560, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 32px 64px rgba(0,0,0,0.5)' }}>
 
             {/* Header */}
-            <div style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>{editSessionId ? 'Edit Session' : 'New Session'}</p>
                 <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>{editSessionId ? 'Update Study Session' : 'Log Study Session'}</h3>
@@ -401,7 +401,7 @@ export default function StudyDayDetailPage() {
             </div>
 
             {/* Body */}
-            <div style={{ padding: '24px 32px', overflowY: 'auto', flex: 1 }}>
+            <div className="m-sheet-body" style={{ padding: '24px 32px', overflowY: 'auto', flex: 1 }}>
               {/* Time selection */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
                 {[['startTime', 'Start Time'], ['endTime', 'End Time']].map(([key, label]) => (
@@ -443,8 +443,8 @@ export default function StudyDayDetailPage() {
                       const updateBlock = (field, val) => setHourBlocks(prev => prev.map((b, idx) => idx === i ? { ...b, [field]: val } : b));
 
                       return (
-                        <div key={i} style={{ background: block.wasted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${block.wasted ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 20, padding: '18px 20px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                        <div key={i} className="m-block-edit" style={{ background: block.wasted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${block.wasted ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 20, padding: '18px 20px' }}>
+                          <div className="m-wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                               <div style={{ width: 28, height: 28, borderRadius: 8, background: block.wasted ? 'rgba(239,68,68,0.3)' : 'linear-gradient(135deg,#3b82f6,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff' }}>
                                 {i + 1}
@@ -493,7 +493,7 @@ export default function StudyDayDetailPage() {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '16px 32px 28px', display: 'flex', justifyContent: 'flex-end', gap: 12, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-footer" style={{ padding: '16px 32px 28px', display: 'flex', justifyContent: 'flex-end', gap: 12, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <button onClick={() => setSessionModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '11px 22px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               <button onClick={handleSaveSession} disabled={savingSession || !durValid} style={{ background: durValid ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'rgba(255,255,255,0.1)', color: '#fff', padding: '11px 26px', borderRadius: 14, fontSize: 14, fontWeight: 700, border: 'none', cursor: durValid ? 'pointer' : 'not-allowed', opacity: savingSession ? 0.7 : 1 }}>
                 {savingSession ? 'Saving...' : editSessionId ? 'Update Session' : 'Log Session'}
@@ -505,10 +505,10 @@ export default function StudyDayDetailPage() {
 
       {/* ══ Overview Modal ══════════════════════════════════════ */}
       {overviewModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 520, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+        <div className="m-sheet-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(10,18,36,0.75)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div className="m-sheet m-sheet-dark" style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', backdropFilter: 'blur(32px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 32, width: '100%', maxWidth: 520, boxShadow: '0 32px 64px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
             {/* Header */}
-            <div style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="m-sheet-header" style={{ padding: '28px 32px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 4 }}>Daily Reflection</p>
                 <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: '#fff', margin: 0 }}>{overview ? 'Edit Day Overview' : 'Add Day Overview'}</h3>
@@ -518,13 +518,13 @@ export default function StudyDayDetailPage() {
               </button>
             </div>
 
-            <div style={{ padding: '24px 32px 28px' }}>
+            <div className="m-sheet-body" style={{ padding: '24px 32px 28px' }}>
               {/* Rating */}
               <div style={{ marginBottom: 24 }}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>
                   Day Rating (1–10)
                 </label>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div className="m-rating-grid" style={{ display: 'flex', gap: 8 }}>
                   {[1,2,3,4,5,6,7,8,9,10].map(n => {
                     const selected = overviewForm.rating === n;
                     const color = n >= 8 ? '#22c55e' : n >= 5 ? '#f59e0b' : '#ef4444';
@@ -569,7 +569,7 @@ export default function StudyDayDetailPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <div className="m-sheet-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                 <button onClick={() => setOverviewModal(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', padding: '11px 22px', borderRadius: 14, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                 <button onClick={handleSaveOverview} disabled={savingOverview} style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', padding: '11px 26px', borderRadius: 14, fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: savingOverview ? 0.7 : 1 }}>
                   {savingOverview ? 'Saving...' : overview ? 'Update Overview' : 'Save Overview'}

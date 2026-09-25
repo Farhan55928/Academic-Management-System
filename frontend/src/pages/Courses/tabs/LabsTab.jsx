@@ -136,7 +136,7 @@ export default function LabsTab({ courseId }) {
                       {lab.title}
                     </h3>
 
-                    <div className="flex gap-4 mt-3">
+                    <div className="flex gap-4 mt-3 m-wrap">
                       <div>
                         <p className="text-xs text-muted mb-1">Task</p>
                         <StatusPill value={lab.taskStatus} />
@@ -202,8 +202,8 @@ export default function LabsTab({ courseId }) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 1fr)', gap: 24, marginTop: 4 }}>
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
+          <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) minmax(240px, 1fr)', gap: 24, marginTop: 4 }}>
+            <div className="m-pad-16" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
               <p className="glass-label" style={{ marginBottom: 15, color: 'rgba(96,165,250,0.8)' }}>Task Details</p>
               <div className="glass-form-group">
                 <div className="glass-input-wrapper">
@@ -221,7 +221,7 @@ export default function LabsTab({ courseId }) {
               </div>
             </div>
 
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
+            <div className="m-pad-16" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '24px' }}>
               <p className="glass-label" style={{ marginBottom: 15, color: 'rgba(96,165,250,0.8)' }}>Report Details</p>
               <div className="glass-form-group">
                 <div className="glass-input-wrapper">

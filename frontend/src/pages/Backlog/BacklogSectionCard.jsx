@@ -64,7 +64,7 @@ export default function BacklogSectionCard({
           <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{index + 1}</span>
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="backlog-section-title" style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{
             fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em',
             color: section.isDone ? '#94a3b8' : '#0f172a',
@@ -98,7 +98,7 @@ export default function BacklogSectionCard({
         </div>
 
         {/* Actions */}
-        <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <div className="no-print backlog-section-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <button
             onClick={() => onToggleSection(section)}
             title={section.isDone ? 'Mark section not done' : 'Mark whole section done'}

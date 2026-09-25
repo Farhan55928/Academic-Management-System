@@ -64,7 +64,7 @@ export default function CourseDetailPage() {
 
   return (
     <div className="page-wrapper">
-      <div style={{ marginBottom: 16 }}>
+      <div className="m-hide" style={{ marginBottom: 16 }}>
         <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>
           <MdArrowBack size={15} /> Back
         </button>

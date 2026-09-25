@@ -1706,212 +1706,529 @@ tbody td {
   gap: 24px;
 }
 
-/* ─── Mobile Topbar & Sidebar Drawer ─────────────────────── */
-.mobile-topbar {
-  display: none;
+/* ─── Mobile shell: Topbar, BottomNav, Sheet ────────────────
+   Everything below is inert on desktop: the shell pieces are display:none
+   above 768px and every page override lives inside the screen ≤768px query.
+   Pages are styled inline, so the `m-*` hook classes they carry use
+   !important to win over those inline values — on mobile only. */
+
+:root {
+  --topbar-h: 60px;
+  --dock-h: 64px;
+  --dock-gap: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.mobile-hamburger {
-  background: none;
-  border: none;
-  padding: 6px;
+.topbar,
+.bottom-nav { display: none; }
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Sheet (portal) — closed state must be invisible at every width */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(10, 18, 36, 0.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: fixed;
+  z-index: 410;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  outline: none;
+  transition: transform 0.35s var(--sheet-ease), opacity 0.25s ease, visibility 0s linear 0.35s;
+}
+.sheet.is-open {
+  visibility: visible;
+  transition: transform 0.35s var(--sheet-ease), opacity 0.25s ease, visibility 0s;
+}
+
+.sheet-bottom {
+  left: 0; right: 0; bottom: 0;
+  max-height: 88dvh;
+  border-radius: 24px 24px 0 0;
+  padding-bottom: var(--safe-bottom);
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.18);
+  transform: translateY(100%);
+}
+.sheet-bottom.is-open { transform: translateY(0); }
+
+.sheet-right {
+  top: 0; right: 0; bottom: 0;
+  width: min(320px, 86vw);
+  transform: translateX(100%);
+}
+.sheet-right.is-open { transform: translateX(0); }
+
+@media (min-width: 769px) {
+  .sheet-bottom {
+    left: 50%; right: auto; bottom: auto; top: 50%;
+    width: min(440px, calc(100vw - 48px));
+    border-radius: var(--radius-xl);
+    padding-bottom: 0;
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+  .sheet-bottom.is-open { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .sheet-handle { display: none; }
+}
+
+.sheet-handle {
+  width: 40px; height: 4px;
+  border-radius: 999px;
+  background: var(--border-mid);
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+.sheet-header { padding: 14px 20px 4px; }
+.sheet-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.sheet-body { padding: 12px 20px 20px; overflow-y: auto; }
+
+.account-sheet-user {
   display: flex;
   align-items: center;
-  color: var(--navy);
-  cursor: pointer;
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.account-sheet-email {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  overflow-wrap: anywhere;
+}
+.account-sheet-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.account-sheet-logout {
+  margin-top: 14px;
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  background: var(--red-pale);
+  color: #b91c1c;
+  font-size: 15px;
+  font-weight: 700;
+}
+.account-sheet-logout:active { transform: scale(0.98); }
+
+/* Hover-revealed controls can't be reached without a mouse */
+@media (hover: none) {
+  .m-touch-visible { opacity: 1 !important; transform: none !important; }
 }
 
-.sidebar-close-btn {
-  display: none;
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-}
+/* ─── Mobile (≤768px, screen only so printing is untouched) ─── */
+@media screen and (max-width: 768px) {
 
-.sidebar-drawer {
-  display: none;
-}
+  html, body { overflow-x: hidden; }
 
-.sidebar-overlay {
-  display: none;
-}
+  /* ── Shell ─────────────────────────────── */
+  .sidebar { display: none; }
 
-/* ─── Full Mobile Responsive (≤768px) ──────────────────────── */
-@media (max-width: 768px) {
-
-  /* ── Topbar ───────────────────────────────── */
-  .mobile-topbar {
+  .topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 56px;
-    background: #fff;
-    border-bottom: 1px solid var(--border);
-    padding: 0 16px;
-    z-index: 200;
-    box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    z-index: 150;
+    height: calc(var(--topbar-h) + var(--safe-top));
+    padding: var(--safe-top) 16px 0;
+    background: rgba(248, 250, 253, 0.86);
+    backdrop-filter: saturate(1.6) blur(14px);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  }
+  .topbar-eyebrow {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .topbar-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--navy);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .topbar-brand,
+  .topbar-icon-btn {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-brand { background: var(--navy); color: #fff; }
+  .topbar-icon-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    color: var(--navy);
+  }
+  .topbar-icon-btn:active { background: var(--blue-mist); }
+  .topbar-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px var(--blue-pale);
   }
 
-  .sidebar-close-btn {
+  /* Floating navy dock — the desktop sidebar's colour, moved to the thumb */
+  .bottom-nav {
     display: flex;
+    position: fixed;
+    left: 12px; right: 12px;
+    bottom: calc(var(--dock-gap) + var(--safe-bottom));
+    z-index: 150;
+    height: var(--dock-h);
+    padding: 6px;
+    gap: 2px;
+    background: var(--navy);
+    border-radius: 22px;
+    box-shadow: 0 14px 32px rgba(15, 30, 60, 0.32), 0 2px 6px rgba(15, 30, 60, 0.18);
   }
-
-  /* ── Desktop sidebar hidden, drawer shown ─ */
-  .sidebar:not(.sidebar-drawer) {
-    display: none;
-  }
-
-  .sidebar-drawer {
+  .bottom-nav-link {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    position: fixed;
-    top: 0; left: 0;
-    height: 100vh;
-    width: 280px;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border-radius: 16px;
+    color: rgba(255, 255, 255, 0.55);
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s, background 0.2s;
   }
-
-  .sidebar-drawer.sidebar-drawer-open {
-    transform: translateX(0);
+  .bottom-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 28px;
+    border-radius: 999px;
+    transition: background 0.25s var(--sheet-ease), transform 0.25s var(--sheet-ease);
   }
-
-  .sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.45);
-    z-index: 250;
-    backdrop-filter: blur(2px);
+  .bottom-nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
+  .bottom-nav-link.active { color: #fff; }
+  .bottom-nav-link.active .bottom-nav-icon { background: var(--blue); }
+  .bottom-nav-link:active .bottom-nav-icon { transform: scale(0.92); }
 
-  /* ── Main content offset for topbar ─────── */
   .main-content {
     margin-left: 0;
-    padding-top: 56px;
+    min-height: 100dvh;
+    padding-top: calc(var(--topbar-h) + var(--safe-top));
+    padding-bottom: calc(var(--dock-h) + var(--dock-gap) + var(--safe-bottom) + 20px);
   }
 
-  /* ── Page wrapper ─────────────────────── */
-  .page-wrapper {
-    padding: 20px 16px;
-  }
+  /* ── Page scaffolding ──────────────────── */
+  .page-wrapper { padding: 20px 16px; }
 
-  /* ── Page header ─────────────────────── */
   .page-header { padding-bottom: 16px; margin-bottom: 20px; }
-  .page-header-top { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .page-header-top h1 { font-size: 26px; }
+  .page-header-top { flex-direction: column; align-items: stretch; gap: 14px; }
+  .page-header-top h1 { font-size: 30px; }
   .page-header-actions { width: 100%; }
-  .page-header-actions .btn { width: 100%; justify-content: center; }
+  .page-header-actions .btn { flex: 1; justify-content: center; }
 
-  /* ── Stats grid ───────────────────────── */
-  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+  .hero-section { padding: 22px 16px 64px !important; }
+  .content-section { padding: 20px 16px !important; }
+  .content-section-no-top { padding: 0 16px 24px !important; }
 
-  /* ── Dashboard ────────────────────────── */
+  .btn { min-height: 42px; }
+  .btn-icon { min-width: 40px; justify-content: center; }
+  .card-body { padding: 16px; }
+
+  /* Inputs below 16px make iOS zoom the whole page on focus */
+  input, select, textarea,
+  .form-input, .form-select, .glass-input, .glass-select { font-size: 16px !important; }
+
+  /* ── Tabs & tables ─────────────────────── */
+  .tab-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn { white-space: nowrap; font-size: 13px; padding: 10px 14px; flex-shrink: 0; }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-wrap table { min-width: 580px; }
+  .table-wrap th { white-space: nowrap; }
+
+  /* ── Grids ─────────────────────────────── */
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .months-grid { grid-template-columns: 1fr; gap: 14px !important; }
+  .courses-grid { grid-template-columns: 1fr; gap: 14px; }
+
+  /* ── Dashboard ─────────────────────────── */
   .dashboard-shell { grid-template-columns: 1fr; }
   .dashboard-overview-band { flex-direction: column; gap: 16px; padding: 20px; }
-  .dashboard-overview-chips { width: 100%; flex-wrap: wrap; }
+  .dashboard-overview-chips { width: 100%; min-width: 0; flex-wrap: wrap; }
   .dashboard-rail { display: block; }
   .dashboard-section-head,
   .dashboard-rail-head { flex-direction: column; align-items: flex-start; gap: 8px; }
   .dashboard-section-count { font-size: 22px; }
-
-  /* ── Course cards ─────────────────────── */
-  .courses-grid { grid-template-columns: 1fr; gap: 14px; }
+  .course-spotlight-topline,
+  .activity-row-top { flex-direction: column; align-items: start; }
+  .course-spotlight-kicker { align-items: start; }
   .course-spotlight-copy h3 { font-size: 22px; }
   .course-spotlight-card { padding: 18px; border-radius: 20px; }
   .course-spotlight-footer { grid-template-columns: 1fr 1fr; gap: 10px; }
   .course-spotlight-link { justify-self: start; }
 
-  /* ── Modals (glass style used in Study/Expense) ─ */
-  .glass-modal,
-  [style*="maxWidth: 420"],
-  [style*="maxWidth: 520"],
-  [style*="maxWidth: 560"],
-  [style*="maxWidth: 620"] {
-    border-radius: 20px !important;
-    max-width: calc(100vw - 32px) !important;
-    margin: 0 16px !important;
+  /* ── Semesters ─────────────────────────── */
+  .m-semester-row { flex-direction: column; align-items: stretch !important; gap: 14px !important; }
+  .m-semester-actions { flex-wrap: wrap; }
+  .m-semester-actions .btn-sm { flex: 1 1 auto; justify-content: center; }
+
+  /* ── Login ─────────────────────────────── */
+  .login-page { grid-template-columns: 1fr; min-height: 100dvh; background: var(--surface); }
+  .login-brand-panel { padding: calc(40px + var(--safe-top)) 24px 64px !important; }
+  .login-brand-panel h1 { font-size: 36px; }
+  .login-brand-panel p { font-size: 14px; }
+  .login-brand-dots { display: none; }
+  .login-form-panel {
+    padding: 0 16px calc(32px + var(--safe-bottom));
+    margin-top: -36px;
+    justify-content: flex-start;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+  }
+  .login-form-inner {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 28px 22px;
+    box-shadow: var(--shadow-xl);
   }
 
-  /* ── Modals: fixed position overlay centers them properly ─ */
-  [style*="position: fixed"][style*="alignItems: center"] {
+  /* ── Generic page hooks ────────────────── */
+  .m-hide { display: none !important; }
+  .m-full { width: 100% !important; min-width: 0 !important; }
+  .m-wrap { flex-wrap: wrap; gap: 10px; }
+  .m-pad-16 { padding: 16px !important; }
+  .m-gap-24 { gap: 24px !important; }
+  .m-grid-1 { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .glass-modal .m-grid-1:has(> .glass-form-group) { row-gap: 0 !important; }
+  .m-touch-visible { opacity: 1 !important; transform: none !important; }
+  .m-tap { min-width: 40px; min-height: 36px; }
+
+  .m-hero-title {
+    font-size: 30px !important;
+    line-height: 1.1 !important;
+    overflow-wrap: anywhere;
+  }
+  .m-hero-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px !important;
+    border-radius: 14px !important;
+  }
+  .m-hero-actions { width: 100%; }
+  .m-hero-actions > button {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+  }
+
+  /* Hero stat chips: first spans the row, the rest pair up */
+  .m-chip-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px !important;
+    margin-top: 24px !important;
+  }
+  .m-chip { padding: 14px 16px !important; border-radius: 16px !important; min-width: 0; }
+  .m-chip:first-child,
+  .m-chip-full { grid-column: 1 / -1; margin-left: 0 !important; }
+  .m-chip-value { font-size: 24px !important; overflow-wrap: anywhere; }
+
+  /* Summary stat cards: pairs, an odd last card spans */
+  .m-stats-strip > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .m-stat-card { padding: 16px !important; border-radius: 18px !important; min-width: 0; gap: 12px !important; }
+  .m-stat-value { font-size: 22px !important; overflow-wrap: anywhere; }
+  .m-stat-value span { font-size: 13px !important; }
+  .m-stat-icon { font-size: 18px !important; margin-bottom: 4px !important; }
+
+  .m-card { padding: 20px !important; border-radius: 22px !important; min-height: 0 !important; }
+  .m-card-icon { width: 46px !important; height: 46px !important; border-radius: 14px !important; }
+  .m-card-icon svg { width: 24px; height: 24px; }
+  .m-card-title { font-size: 24px !important; }
+  .m-card-title-sm { font-size: 19px !important; }
+  .m-card-foot { margin-top: 18px !important; padding-top: 16px; gap: 12px; }
+
+  .m-empty { padding: 48px 20px !important; border-radius: 20px !important; }
+
+  /* ── Expense ledger ────────────────────── */
+  .m-day-head { gap: 12px; }
+  .m-day-badge { width: 44px !important; height: 44px !important; border-radius: 14px !important; }
+  .m-day-total { padding: 6px 12px !important; border-radius: 12px !important; flex-shrink: 0; }
+  .m-day-total p:last-child { font-size: 16px !important; }
+
+  .m-expense-row {
+    flex-wrap: wrap;
+    padding: 14px !important;
+    border-radius: 18px !important;
+    gap: 10px !important;
+  }
+  .m-expense-main { flex: 1 1 100%; min-width: 0; gap: 12px !important; }
+  .m-expense-main > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .m-expense-icon { width: 42px !important; height: 42px !important; border-radius: 12px !important; font-size: 20px !important; }
+  .m-expense-side { width: 100%; justify-content: space-between; padding-left: 54px; }
+  .m-expense-amount { font-size: 20px !important; }
+
+  /* ── Study day ─────────────────────────── */
+  .m-overview-grid { grid-template-columns: 1fr !important; }
+  .m-overview-grid > div { border-right: none !important; border-bottom: 1px solid #f1f5f9; }
+  .m-overview-grid > div:last-child { border-bottom: none; }
+  .m-session-head { flex-wrap: wrap; gap: 12px; padding: 14px 16px !important; }
+  .m-session-head > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .m-session-time { font-size: 16px !important; }
+  .m-block-edit { padding: 14px !important; }
+  .m-rating-grid { display: grid !important; grid-template-columns: repeat(5, 1fr); gap: 8px !important; }
+  .m-rating-grid > button { width: 100% !important; height: 44px !important; }
+
+  /* ── Backlog tree ──────────────────────── */
+  .backlog-section { border-radius: 22px !important; }
+  .backlog-section-header { flex-wrap: wrap; gap: 10px 12px !important; padding: 20px 14px 12px !important; }
+  .backlog-section-badge { width: 40px !important; height: 40px !important; border-radius: 12px !important; }
+  .backlog-section-badge span { font-size: 17px !important; }
+  .backlog-section-title h3 { font-size: 17px !important; }
+  .backlog-section-meta { padding: 6px 10px !important; border-radius: 12px !important; }
+  .backlog-section-meta p:first-child { font-size: 9px !important; }
+  .backlog-section-meta p:last-child { font-size: 15px !important; }
+  .backlog-section-actions { flex: 1 1 100%; justify-content: space-between; }
+  .backlog-section-actions > div { opacity: 1 !important; }
+  .backlog-rail { padding: 0 14px 14px !important; }
+  .backlog-section > .backlog-body { padding: 0 12px 16px !important; }
+
+  .backlog-subsection-header { flex-wrap: wrap; gap: 8px 10px !important; padding: 12px !important; }
+  .backlog-sub-actions { flex: 1 1 100%; justify-content: flex-end; opacity: 1 !important; }
+  .backlog-subsection .backlog-body { padding: 0 12px 12px 16px !important; }
+  .backlog-step .no-print { opacity: 1 !important; }
+
+  /* ── Page-level dialogs become bottom sheets ── */
+  .m-sheet-overlay,
+  .modal-overlay,
+  .glass-overlay {
     align-items: flex-end !important;
     padding: 0 !important;
   }
-
-  [style*="position: fixed"][style*="alignItems: flex-end"] > div {
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    border-top-left-radius: 24px !important;
-    border-top-right-radius: 24px !important;
+  .m-sheet,
+  .modal,
+  .glass-modal {
+    max-width: none !important;
     width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    max-height: 90vh;
+    max-height: 92dvh !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-bottom: none !important;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden !important;
+    padding-bottom: var(--safe-bottom);
+    animation: sheetUp 0.34s var(--sheet-ease) both !important;
   }
-
-  /* ── Hero Sections ─────────────── */
-  .hero-section {
-    padding: 20px 16px 60px !important;
+  .m-sheet-dark,
+  .glass-modal { background: linear-gradient(180deg, #1d3468 0%, #14254d 100%) !important; }
+  .m-sheet::before,
+  .modal::before,
+  .glass-modal::before {
+    content: '';
+    display: block;
+    flex-shrink: 0;
+    width: 40px;
+    height: 4px;
+    margin: 10px auto 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
   }
+  .modal::before { background: var(--border-mid); }
 
-  /* ── Content Sections ────────── */
-  .content-section {
-    padding: 20px 16px !important;
+  .m-sheet-header,
+  .modal-header,
+  .glass-modal-header { padding: 12px 20px 14px !important; flex-shrink: 0; gap: 12px; }
+  .m-sheet-header h3,
+  .glass-modal-header h3 { font-size: 18px !important; }
+  .m-sheet-section { padding: 16px 20px 12px !important; flex-shrink: 0; }
+  .m-sheet-body,
+  .modal-body,
+  .glass-modal-body {
+    padding: 16px 20px !important;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
   }
-
-  /* ── Stats Grids ──────────────── */
-  .stats-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
+  .m-sheet-footer,
+  .modal-footer,
+  .glass-modal-footer { padding: 12px 20px 16px !important; flex-shrink: 0; gap: 10px !important; }
+  .glass-modal-footer > div { width: 100%; }
+  .m-sheet-footer > button,
+  .m-sheet-actions > button,
+  .modal-footer > .btn,
+  .glass-modal-footer > div > button {
+    flex: 1;
+    min-height: 48px;
+    justify-content: center;
   }
-
-  /* ── Study day detail page overview grid ── */
-  [style*="gridTemplateColumns: '1fr 1fr 1fr'"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* ── Month/Expense hero sections ─────────── */
-  .expense-hero,
-  .months-hero {
-    padding: 20px 16px 60px !important;
-  }
-
-  /* ── Expense list row wrapping ─────────── */
-  .expense-row { flex-wrap: wrap; gap: 8px; }
-
-  /* ── Semester/Course detail sections ─────── */
-  .semester-detail-grid,
-  .course-detail-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* ── Tabs ─────────────────────────────── */
-  .tab-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
-  .tab-btn { white-space: nowrap; font-size: 13px; padding: 8px 14px; }
-
-  /* ── Buttons full-width in some contexts ─ */
-  .btn { min-height: 42px; }
-
-  /* ── Glass input width fix on mobile ──── */
-  .glass-input { font-size: 16px !important; } /* prevents iOS auto-zoom */
-
-  /* ── Hour blocks rating grid ─────────── */
-  [style*="display: 'flex'"][style*="gap: 8"] button[style*="width: 38"] {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 13px !important;
-  }
+  .m-sheet .m-amount-input { font-size: 42px !important; width: 100% !important; max-width: 220px; }
 }
 
 /* ─── Very small screens (≤400px) ─────────────────────────── */
-@media (max-width: 400px) {
-  .stats-grid { grid-template-columns: 1fr !important; }
+@media screen and (max-width: 400px) {
+  .stats-grid:not(.m-stats-strip) { grid-template-columns: 1fr !important; }
   .course-spotlight-footer { grid-template-columns: 1fr; }
+  .m-hero-title { font-size: 26px !important; }
+  .bottom-nav-label { font-size: 9.5px; }
 }
 
 
@@ -1932,9 +2249,10 @@ tbody td {
 @media print {
   /* ── Hide all chrome that makes no sense on paper ── */
   .sidebar,
-  .sidebar-drawer,
-  .sidebar-overlay,
-  .mobile-topbar,
+  .topbar,
+  .bottom-nav,
+  .sheet,
+  .sheet-backdrop,
   .no-print,
   .backlog-caret,
   .backlog-stripe,
