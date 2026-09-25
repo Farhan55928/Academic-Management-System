@@ -14,13 +14,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    // Google OAuth tokens (for Drive uploads). Refresh token is long-lived;
-    // access token is short-lived and gets refreshed on demand.
-    googleAccessToken:  { type: String, default: null },
-    googleRefreshToken: { type: String, default: null },
-    googleTokenExpiry:  { type: Date,   default: null },
-    googleConnectedAt:  { type: Date,   default: null },
   },
   { timestamps: true }
 );

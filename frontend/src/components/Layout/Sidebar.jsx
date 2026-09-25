@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import {
   MdDashboard, MdCalendarViewMonth, MdLogout,
   MdOutlineSchool, MdCircle, MdAccountBalanceWallet, MdMenuBook,
-  MdMenu, MdClose, MdChecklist, MdScience,
+  MdMenu, MdClose, MdChecklist,
 } from 'react-icons/md';
 import { getSemesters } from '../../api/semesters.js';
 
@@ -32,7 +32,6 @@ export default function Sidebar({ user, onLogout }) {
     { to: '/backlog',    label: 'Backlog',       icon: <MdChecklist size={17} /> },
     { to: '/expenses',   label: 'Expense Log',   icon: <MdAccountBalanceWallet size={17} /> },
     { to: '/study',      label: 'Study Log',     icon: <MdMenuBook size={17} /> },
-    { to: '/research',   label: 'Research Logs', icon: <MdScience size={17} /> },
   ];
 
   const isActive = (to) =>

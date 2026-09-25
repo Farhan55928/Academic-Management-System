@@ -10,7 +10,8 @@ export function useAuth() {
     try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch { return null; }
   });
 
-  // On mount, refresh the user from /me so we have googleConnected etc.
+  // On mount, refresh the user from /me so any updated profile fields
+  // (e.g. a rotated email) are reflected in localStorage.
   // Silent on failure (expired token etc.) — the axios interceptor handles
   // redirecting to /login.
   useEffect(() => {

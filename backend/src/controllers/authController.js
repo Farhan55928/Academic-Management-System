@@ -55,17 +55,10 @@ export const login = async (req, res) => {
 // @access Private
 export const getMe = async (req, res) => {
   try {
-    // Reload to include the Google flags — protect middleware uses a lean
-    // projection that strips them. This endpoint is the source of truth for
-    // the frontend's "is Drive connected?" check.
-    const user = await User.findById(req.user._id).select(
-      '_id email googleAccessToken googleRefreshToken googleConnectedAt'
-    ).lean();
+    const user = await User.findById(req.user._id).select('_id email').lean();
     res.status(200).json({
       id: user._id,
       email: user.email,
-      googleConnected: Boolean(user.googleRefreshToken),
-      googleConnectedAt: user.googleConnectedAt || null,
     });
   } catch (error) {
     res.status(500).json({ code: 'SERVER_ERROR', message: 'Server error' });
