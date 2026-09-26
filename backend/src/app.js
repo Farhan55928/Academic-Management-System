@@ -19,6 +19,7 @@ import studySessionRoutes from './routes/studySessionRoutes.js';
 import dayOverviewRoutes from './routes/dayOverviewRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import backlogRoutes from './routes/backlogRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 // Standalone routes (for update/delete by ID, not nested)
 import { protect } from './middleware/authMiddleware.js';
@@ -111,6 +112,9 @@ app.delete('/api/study/sessions/:id', protect, deleteSession);
 // Every level shares the /api/backlog prefix, so the standalone PUT/DELETE
 // routes live inside backlogRoutes.js rather than being repeated here.
 app.use('/api/backlog', backlogRoutes);
+
+// ─── Image uploads (Cloudinary, signed direct uploads) ─
+app.use('/api/uploads', uploadRoutes);
 
 // ─── Global error handler ──────────────────────────────
 // Express 5 forwards rejected async-handler promises here automatically.
