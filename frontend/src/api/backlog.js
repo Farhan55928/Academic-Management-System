@@ -6,6 +6,8 @@ export const getWeekDetails = (id)         => api.get(`/backlog/weeks/${id}`);
 export const createWeek     = (data)       => api.post('/backlog/weeks', data);
 export const updateWeek     = (id, data)   => api.put(`/backlog/weeks/${id}`, data);
 export const deleteWeek     = (id)         => api.delete(`/backlog/weeks/${id}`);
+export const getLeftovers   = (id)         => api.get(`/backlog/weeks/${id}/leftovers`);
+export const carryOver      = (id, subsectionIds) => api.post(`/backlog/weeks/${id}/carry-over`, { subsectionIds });
 
 // ─── Sections ───────────────────────────────────────────────
 export const createSection = (weekId, data) => api.post(`/backlog/weeks/${weekId}/sections`, data);
@@ -24,3 +26,9 @@ export const deleteStep = (id)                 => api.delete(`/backlog/steps/${i
 
 // ─── Reordering ─────────────────────────────────────────────
 export const reorder = (data) => api.put('/backlog/reorder', data);
+
+// ─── Templates ──────────────────────────────────────────────
+export const getTemplates   = ()                   => api.get('/backlog/templates');
+export const createTemplate = (data)               => api.post('/backlog/templates', data);
+export const deleteTemplate = (id)                 => api.delete(`/backlog/templates/${id}`);
+export const applyTemplate  = (weekId, templateId) => api.post(`/backlog/weeks/${weekId}/apply-template`, { templateId });

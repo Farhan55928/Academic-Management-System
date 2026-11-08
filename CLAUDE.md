@@ -97,6 +97,11 @@ Expenses
 Academic Backlog (Week → Section → Subsection → Step)
 ├── /api/backlog/weeks                              [GET list?semesterId= / POST]
 ├── /api/backlog/weeks/:id                          [GET full tree / PUT / DELETE]
+├── /api/backlog/weeks/:id/leftovers                [GET unfinished subsections from earlier weeks]
+├── /api/backlog/weeks/:id/carry-over               [POST { subsectionIds }] moves them in, sets carriedFrom
+├── /api/backlog/weeks/:id/apply-template           [POST { templateId }] merges, skips duplicate titles
+├── /api/backlog/templates                          [GET / POST { name, weekId }]  (POST /weeks also takes templateId)
+├── /api/backlog/templates/:id                      [DELETE]
 ├── /api/backlog/weeks/:weekId/sections             [POST]
 ├── /api/backlog/sections/:id                       [PUT/DELETE standalone]
 ├── /api/backlog/sections/:sectionId/subsections    [POST]

@@ -33,6 +33,10 @@ const backlogSubsectionSchema = new mongoose.Schema({
   order: {
     type: Number,
     default: 0
+  },
+  carriedFrom: {
+    type: Number,
+    default: null  // week number this task was first left unfinished in, if carried over
   }
 }, { timestamps: true });
 

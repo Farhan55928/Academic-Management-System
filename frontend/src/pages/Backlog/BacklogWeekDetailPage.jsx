@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router';
-import { MdAdd, MdArrowBack, MdPrint, MdClose } from 'react-icons/md';
+import { useParams, useSearchParams, Link } from 'react-router';
+import { MdAdd, MdArrowBack, MdPrint, MdClose, MdHistory, MdContentCopy, MdDelete } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import {
   getWeekDetails,
   createSection, updateSection, deleteSection,
   createSubsection, updateSubsection, deleteSubsection,
   createStep, updateStep, deleteStep,
-  reorder,
+  reorder, getLeftovers, carryOver,
+  getTemplates, createTemplate, deleteTemplate, applyTemplate,
 } from '../../api/backlog.js';
 import { getCourses } from '../../api/courses.js';
 import { getSemesters } from '../../api/semesters.js';
@@ -23,6 +24,7 @@ const openKey = (weekId) => `ams_backlog_open_${weekId}`;
 
 export default function BacklogWeekDetailPage() {
   const { weekId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [week,     setWeek]     = useState(null);
   const [courses,  setCourses]  = useState([]);
@@ -57,6 +59,13 @@ export default function BacklogWeekDetailPage() {
     seeded.current = !!stored;
     setOpen(stored ? new Set(JSON.parse(stored)) : new Set());
     load().finally(() => setLoading(false));
+  }, [weekId]);
+
+  // Arriving from "Create Week" (?carry=1): offer the leftovers straight away, once
+  useEffect(() => {
+    if (searchParams.get('carry') !== '1') return;
+    setSearchParams({}, { replace: true });
+    openCarryOver({ silent: true });
   }, [weekId]);
 
   // Persist expansion state on every change, so a refetch can't reset it
@@ -246,6 +255,75 @@ export default function BacklogWeekDetailPage() {
 
   const closeModal = () => { setModal(null); setEditId(null); setParentId(null); };
 
+  // ─── Carry-over ───────────────────────────────────────────
+  const [leftovers, setLeftovers] = useState(null);
+
+  // silent: the automatic prompt after creating a week shouldn't toast "nothing left"
+  async function openCarryOver({ silent = false } = {}) {
+    try {
+      const r = await getLeftovers(weekId);
+      if (r.data.length === 0) {
+        if (!silent) toast.success('No unfinished tasks in earlier weeks 🎉');
+        return;
+      }
+      setLeftovers(r.data);
+      setModal('carry');
+    } catch (e) { if (!silent) toast.error(getErrorMessage(e, 'Failed to load leftovers')); }
+  }
+
+  // ─── Templates ────────────────────────────────────────────
+  const [templates, setTemplates] = useState([]);
+
+  const openTemplates = async () => {
+    try {
+      const r = await getTemplates();
+      setTemplates(r.data);
+      setModal('templates');
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to load templates')); }
+  };
+
+  const saveAsTemplate = async (name) => {
+    if (!name.trim()) return toast.error('Give the template a name');
+    setSaving(true);
+    try {
+      const r = await createTemplate({ name: name.trim(), weekId });
+      setTemplates((t) => [...t, r.data].sort((a, b) => a.name.localeCompare(b.name)));
+      toast.success('Template saved');
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to save template')); }
+    finally { setSaving(false); }
+  };
+
+  const stampTemplate = async (id) => {
+    setSaving(true);
+    try {
+      const r = await applyTemplate(weekId, id);
+      toast.success(r.data.added > 0 ? `Added ${r.data.added} task${r.data.added === 1 ? '' : 's'}` : 'Everything in that template is already here');
+      closeModal();
+      load();
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to apply template')); }
+    finally { setSaving(false); }
+  };
+
+  const removeTemplate = async (id) => {
+    if (!confirm('Delete this template? Weeks already made from it stay as they are.')) return;
+    try {
+      await deleteTemplate(id);
+      setTemplates((t) => t.filter((x) => x._id !== id));
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to delete template')); }
+  };
+
+  const saveCarryOver = async (ids) => {
+    if (ids.length === 0) return;
+    setSaving(true);
+    try {
+      const r = await carryOver(weekId, ids);
+      toast.success(`Carried over ${r.data.moved} task${r.data.moved === 1 ? '' : 's'}`);
+      closeModal();
+      load();
+    } catch (e) { toast.error(getErrorMessage(e, 'Failed to carry over')); }
+    finally { setSaving(false); }
+  };
+
   // ─── Render ───────────────────────────────────────────────
 
   if (loading) return (
@@ -300,6 +378,18 @@ export default function BacklogWeekDetailPage() {
                   style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
                 >
                   <MdPrint size={20} /> Print
+                </button>
+                <button
+                  onClick={openCarryOver}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  <MdHistory size={20} /> Carry Over
+                </button>
+                <button
+                  onClick={openTemplates}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                >
+                  <MdContentCopy size={20} /> Templates
                 </button>
                 <button
                   onClick={openAddSection}
@@ -424,7 +514,162 @@ export default function BacklogWeekDetailPage() {
           saving={saving}
         />
       )}
+
+      {modal === 'carry' && leftovers && (
+        <CarryOverModal
+          leftovers={leftovers}
+          weekNumber={week.weekNumber}
+          onClose={closeModal}
+          onSave={saveCarryOver}
+          saving={saving}
+        />
+      )}
+
+      {modal === 'templates' && (
+        <TemplatesModal
+          templates={templates}
+          weekNumber={week.weekNumber}
+          canSave={week.sections.length > 0}
+          onClose={closeModal}
+          onSaveAs={saveAsTemplate}
+          onApply={stampTemplate}
+          onDelete={removeTemplate}
+          saving={saving}
+        />
+      )}
     </>
+  );
+}
+
+function TemplatesModal({ templates, weekNumber, canSave, onClose, onSaveAs, onApply, onDelete, saving }) {
+  const [name, setName] = useState('');
+  const count = (t) => t.sections.reduce((n, s) => n + s.subsections.length, 0);
+
+  return (
+    <GlassModal
+      eyebrow="Templates"
+      title="Reuse a week's structure"
+      onClose={onClose}
+      maxWidth={560}
+      footer={<button onClick={onClose} style={cancelBtn}>Close</button>}
+    >
+      {canSave && (
+        <div style={{ marginBottom: 24 }}>
+          <ModalField label={`Save Week ${weekNumber} as a template`}>
+            <div style={{ display: 'flex' }}>
+              <input
+                type="text" value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && onSaveAs(name).then(() => setName(''))}
+                placeholder="e.g. Regular lecture week"
+                style={fieldInput}
+              />
+              <button
+                onClick={() => onSaveAs(name).then(() => setName(''))}
+                disabled={saving}
+                style={{ background: 'rgba(59,130,246,0.25)', border: 'none', color: '#fff', padding: '0 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}
+              >
+                Save
+              </button>
+            </div>
+          </ModalField>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
+            Saves sections, tasks, priorities and step names. Ticks are not saved.
+          </p>
+        </div>
+      )}
+
+      <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>
+        Apply to this week
+      </p>
+      {templates.length === 0 ? (
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>No templates yet. Save one from a week you like.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: '40vh', overflowY: 'auto' }}>
+          {templates.map((t) => (
+            <div key={t._id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '10px 14px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ color: '#fff', fontWeight: 700, fontSize: 14, overflowWrap: 'anywhere' }}>{t.name}</p>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>{t.sections.length} sections · {count(t)} tasks</p>
+              </div>
+              <button onClick={() => onApply(t._id)} disabled={saving}
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                Apply
+              </button>
+              <button onClick={() => onDelete(t._id)} aria-label={`Delete ${t.name}`}
+                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex' }}>
+                <MdDelete size={18} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </GlassModal>
+  );
+}
+
+function CarryOverModal({ leftovers, weekNumber, onClose, onSave, saving }) {
+  const allIds = leftovers.flatMap((w) => w.sections.flatMap((s) => s.subsections.map((x) => x._id)));
+  const [picked, setPicked] = useState(() => new Set(allIds));
+
+  const toggle = (ids, on) => setPicked((prev) => {
+    const next = new Set(prev);
+    ids.forEach((id) => (on ? next.add(id) : next.delete(id)));
+    return next;
+  });
+  const box = { width: 16, height: 16, accentColor: '#3b82f6', cursor: 'pointer', flexShrink: 0 };
+
+  return (
+    <GlassModal
+      eyebrow="Carry Over"
+      title={`Bring leftovers into Week ${weekNumber}`}
+      onClose={onClose}
+      maxWidth={600}
+      footer={<>
+        <button onClick={onClose} style={cancelBtn}>Cancel</button>
+        <button onClick={() => onSave([...picked])} disabled={saving || picked.size === 0} style={saveBtn(saving || picked.size === 0)}>
+          {saving ? 'Moving...' : `Move ${picked.size} task${picked.size === 1 ? '' : 's'}`}
+        </button>
+      </>}
+    >
+      <label style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700, marginBottom: 14, cursor: 'pointer' }}>
+        <input type="checkbox" style={box} checked={picked.size === allIds.length}
+          onChange={(e) => toggle(allIds, e.target.checked)} />
+        Select all ({allIds.length})
+      </label>
+      <div style={{ maxHeight: '50vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {leftovers.map((w) => (
+          <div key={w._id}>
+            <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(96,165,250,0.8)', marginBottom: 8 }}>
+              Week {w.weekNumber}
+            </p>
+            {w.sections.map((s) => {
+              const ids = s.subsections.map((x) => x._id);
+              const all = ids.every((id) => picked.has(id));
+              return (
+                <div key={s._id} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '10px 14px', marginBottom: 8 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                    <input type="checkbox" style={box} checked={all} onChange={(e) => toggle(ids, e.target.checked)} />
+                    {s.title}
+                  </label>
+                  {s.subsections.map((sub) => (
+                    <label key={sub._id} style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'rgba(255,255,255,0.75)', fontSize: 13, padding: '6px 0 0 26px', cursor: 'pointer' }}>
+                      <input type="checkbox" style={box} checked={picked.has(sub._id)} onChange={(e) => toggle([sub._id], e.target.checked)} />
+                      <span style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{sub.title}</span>
+                      {sub.progress.total > 0 && (
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontVariantNumeric: 'tabular-nums' }}>
+                          {sub.progress.done}/{sub.progress.total}
+                        </span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </GlassModal>
   );
 }
 

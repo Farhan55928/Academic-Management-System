@@ -90,6 +90,16 @@ export default function BacklogSubsectionRow({
           {subsection.title}
         </span>
 
+        {subsection.carriedFrom != null && (
+          <span title={`Carried over from Week ${subsection.carriedFrom}`} style={{
+            fontSize: 10, fontWeight: 800, letterSpacing: '0.05em',
+            padding: '3px 10px', borderRadius: 999, flexShrink: 0,
+            background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe',
+          }}>
+            ↻ W{subsection.carriedFrom}
+          </span>
+        )}
+
         {priority && (
           <span style={{
             fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
