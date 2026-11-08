@@ -1,5 +1,5 @@
 import {
-  MdDashboard, MdCalendarViewMonth, MdAccountBalanceWallet, MdMenuBook, MdChecklist,
+  MdDashboard, MdCalendarViewMonth, MdAccountBalanceWallet, MdMenuBook, MdChecklist, MdPublic,
 } from 'react-icons/md';
 
 // Shared by the desktop Sidebar and the mobile BottomNav so the two never drift.
@@ -10,6 +10,7 @@ export const NAV_LINKS = [
   { to: '/backlog',   label: 'Backlog',     short: 'Backlog',   Icon: MdChecklist },
   { to: '/expenses',  label: 'Expense Log', short: 'Expenses',  Icon: MdAccountBalanceWallet },
   { to: '/study',     label: 'Study Log',   short: 'Study',     Icon: MdMenuBook },
+  { to: '/abroad',    label: 'Abroad Log',  short: 'Abroad',    Icon: MdPublic },
 ];
 
 export const isNavActive = (pathname, to) =>

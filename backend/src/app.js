@@ -20,6 +20,7 @@ import dayOverviewRoutes from './routes/dayOverviewRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import backlogRoutes from './routes/backlogRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import abroadRoutes from './routes/abroadRoutes.js';
 
 // Standalone routes (for update/delete by ID, not nested)
 import { protect } from './middleware/authMiddleware.js';
@@ -115,6 +116,9 @@ app.use('/api/backlog', backlogRoutes);
 
 // ─── Image uploads (Cloudinary, signed direct uploads) ─
 app.use('/api/uploads', uploadRoutes);
+
+// ─── Abroad Log (country → checklist/programs/contacts/videos/notes) ─
+app.use('/api/abroad', abroadRoutes);
 
 // ─── Global error handler ──────────────────────────────
 // Express 5 forwards rejected async-handler promises here automatically.

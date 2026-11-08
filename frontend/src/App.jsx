@@ -15,6 +15,9 @@ import StudyDaysPage from './pages/Study/StudyDaysPage.jsx';
 import StudyDayDetailPage from './pages/Study/StudyDayDetailPage.jsx';
 import BacklogWeeksPage from './pages/Backlog/BacklogWeeksPage.jsx';
 import BacklogWeekDetailPage from './pages/Backlog/BacklogWeekDetailPage.jsx';
+import AbroadCountriesPage from './pages/Abroad/AbroadCountriesPage.jsx';
+import AbroadCountryPage from './pages/Abroad/AbroadCountryPage.jsx';
+import AbroadNotePage from './pages/Abroad/AbroadNotePage.jsx';
 
 const MOBILE_QUERY = '(max-width: 768px)';
 const subscribeMobile = (cb) => {
@@ -73,6 +76,9 @@ function AppRoutes() {
           <Route path="/expenses/:monthId"         element={<ExpensesPage />} />
           <Route path="/study"                     element={<StudyDaysPage />} />
           <Route path="/study/:dayId"              element={<StudyDayDetailPage />} />
+          <Route path="/abroad"                    element={<AbroadCountriesPage />} />
+          <Route path="/abroad/:countryId"         element={<AbroadCountryPage />} />
+          <Route path="/abroad/:countryId/notes/:noteId" element={<AbroadNotePage />} />
           <Route path="*"                          element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>

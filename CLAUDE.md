@@ -105,6 +105,17 @@ Academic Backlog (Week → Section → Subsection → Step)
 ├── /api/backlog/steps/:id                          [PUT/DELETE standalone]
 └── /api/backlog/reorder                            [PUT { type, ids }]
 
+Abroad Log (Country → checklist | programs | contacts | videos | notes)
+├── /api/abroad/countries                           [GET list w/ counts + checklist progress / POST]
+├── /api/abroad/countries/:id                       [GET country + all sections / PUT / DELETE cascade]
+├── /api/abroad/countries/:countryId/:kind          [POST]
+├── /api/abroad/countries/:countryId/checklist/import [POST { markdown }]
+└── /api/abroad/:kind/:id                           [PUT/DELETE standalone]
+
+Uploads (Cloudinary, signed direct browser uploads)
+├── /api/uploads/signature                          [POST]
+└── /api/uploads                                    [DELETE { publicId }]
+
 Auth
 ├── /api/auth/login                              [POST]  (no register endpoint exists)
 └── /api/auth/me                                 [GET]
@@ -138,6 +149,7 @@ Mongo connection reused across serverless invocations) and
 - **StudyDay/StudySession**: Study tracking with daily overviews
 - **Month/Expense**: Expense tracking by month
 - **BacklogWeek/BacklogSection/BacklogSubsection/BacklogStep**: Weekly pending-work checklist. Steps are the source of truth for completion; `backlogController.js` holds a `recomputeSubsection → recomputeSection → recomputeWeek` chain that every mutation calls into, so ticking the last step auto-completes its parents. Ticking a parent cascades down instead. A subsection with no steps is a manually-ticked leaf task. Children denormalize `weekId` so the tree loads and cascade-deletes in flat queries.
+- **AbroadCountry + AbroadChecklistItem/Program/Contact/Video/Note**: Abroad Log. Children share `abroadChildSchema.js` and denormalize `userId`+`countryId`; `abroadController.js` drives all five kinds from one `KINDS` table. Covers live in Cloudinary under `ams/<userId>/` and are destroyed when replaced or when the country is deleted.
 - **Member**: Shared resource (used in some modules)
 
 ### Authentication
@@ -167,6 +179,7 @@ frontend/src/
 - **CourseDetailPage**: Tabs for Attendance, Labs, Marks
 - **StudyDaysPage/StudyDayDetailPage**: Study tracking
 - **MonthsPage/ExpensesPage**: Expense tracking
+- **AbroadCountriesPage/AbroadCountryPage**: Abroad Log (tabs in `pages/Abroad/tabs/`); shared `Markdown`, `MarkdownEditor`, `VideoEmbed`, `ImageUpload` in `components/UI/`
 
 ## Common Development Tasks
 
