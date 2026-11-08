@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router';
-import { MdAdd, MdArrowBack, MdPrint, MdClose, MdHistory, MdContentCopy, MdDelete } from 'react-icons/md';
+import { MdAdd, MdArrowBack, MdPrint, MdClose, MdHistory } from 'react-icons/md';
 import toast from 'react-hot-toast';
 import {
   getWeekDetails,
@@ -8,7 +8,6 @@ import {
   createSubsection, updateSubsection, deleteSubsection,
   createStep, updateStep, deleteStep,
   reorder, getLeftovers, carryOver,
-  getTemplates, createTemplate, deleteTemplate, applyTemplate,
 } from '../../api/backlog.js';
 import { getCourses } from '../../api/courses.js';
 import { getSemesters } from '../../api/semesters.js';
@@ -271,46 +270,6 @@ export default function BacklogWeekDetailPage() {
     } catch (e) { if (!silent) toast.error(getErrorMessage(e, 'Failed to load leftovers')); }
   }
 
-  // ─── Templates ────────────────────────────────────────────
-  const [templates, setTemplates] = useState([]);
-
-  const openTemplates = async () => {
-    try {
-      const r = await getTemplates();
-      setTemplates(r.data);
-      setModal('templates');
-    } catch (e) { toast.error(getErrorMessage(e, 'Failed to load templates')); }
-  };
-
-  const saveAsTemplate = async (name) => {
-    if (!name.trim()) return toast.error('Give the template a name');
-    setSaving(true);
-    try {
-      const r = await createTemplate({ name: name.trim(), weekId });
-      setTemplates((t) => [...t, r.data].sort((a, b) => a.name.localeCompare(b.name)));
-      toast.success('Template saved');
-    } catch (e) { toast.error(getErrorMessage(e, 'Failed to save template')); }
-    finally { setSaving(false); }
-  };
-
-  const stampTemplate = async (id) => {
-    setSaving(true);
-    try {
-      const r = await applyTemplate(weekId, id);
-      toast.success(r.data.added > 0 ? `Added ${r.data.added} task${r.data.added === 1 ? '' : 's'}` : 'Everything in that template is already here');
-      closeModal();
-      load();
-    } catch (e) { toast.error(getErrorMessage(e, 'Failed to apply template')); }
-    finally { setSaving(false); }
-  };
-
-  const removeTemplate = async (id) => {
-    if (!confirm('Delete this template? Weeks already made from it stay as they are.')) return;
-    try {
-      await deleteTemplate(id);
-      setTemplates((t) => t.filter((x) => x._id !== id));
-    } catch (e) { toast.error(getErrorMessage(e, 'Failed to delete template')); }
-  };
 
   const saveCarryOver = async (ids) => {
     if (ids.length === 0) return;
@@ -384,12 +343,6 @@ export default function BacklogWeekDetailPage() {
                   style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
                 >
                   <MdHistory size={20} /> Carry Over
-                </button>
-                <button
-                  onClick={openTemplates}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', color: 'rgba(255,255,255,0.85)', padding: '14px 24px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
-                >
-                  <MdContentCopy size={20} /> Templates
                 </button>
                 <button
                   onClick={openAddSection}
@@ -524,87 +477,7 @@ export default function BacklogWeekDetailPage() {
           saving={saving}
         />
       )}
-
-      {modal === 'templates' && (
-        <TemplatesModal
-          templates={templates}
-          weekNumber={week.weekNumber}
-          canSave={week.sections.length > 0}
-          onClose={closeModal}
-          onSaveAs={saveAsTemplate}
-          onApply={stampTemplate}
-          onDelete={removeTemplate}
-          saving={saving}
-        />
-      )}
     </>
-  );
-}
-
-function TemplatesModal({ templates, weekNumber, canSave, onClose, onSaveAs, onApply, onDelete, saving }) {
-  const [name, setName] = useState('');
-  const count = (t) => t.sections.reduce((n, s) => n + s.subsections.length, 0);
-
-  return (
-    <GlassModal
-      eyebrow="Templates"
-      title="Reuse a week's structure"
-      onClose={onClose}
-      maxWidth={560}
-      footer={<button onClick={onClose} style={cancelBtn}>Close</button>}
-    >
-      {canSave && (
-        <div style={{ marginBottom: 24 }}>
-          <ModalField label={`Save Week ${weekNumber} as a template`}>
-            <div style={{ display: 'flex' }}>
-              <input
-                type="text" value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && onSaveAs(name).then(() => setName(''))}
-                placeholder="e.g. Regular lecture week"
-                style={fieldInput}
-              />
-              <button
-                onClick={() => onSaveAs(name).then(() => setName(''))}
-                disabled={saving}
-                style={{ background: 'rgba(59,130,246,0.25)', border: 'none', color: '#fff', padding: '0 18px', fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}
-              >
-                Save
-              </button>
-            </div>
-          </ModalField>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
-            Saves sections, tasks, priorities and step names. Ticks are not saved.
-          </p>
-        </div>
-      )}
-
-      <p style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>
-        Apply to this week
-      </p>
-      {templates.length === 0 ? (
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>No templates yet. Save one from a week you like.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: '40vh', overflowY: 'auto' }}>
-          {templates.map((t) => (
-            <div key={t._id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '10px 14px' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ color: '#fff', fontWeight: 700, fontSize: 14, overflowWrap: 'anywhere' }}>{t.name}</p>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>{t.sections.length} sections · {count(t)} tasks</p>
-              </div>
-              <button onClick={() => onApply(t._id)} disabled={saving}
-                style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-                Apply
-              </button>
-              <button onClick={() => onDelete(t._id)} aria-label={`Delete ${t.name}`}
-                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex' }}>
-                <MdDelete size={18} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </GlassModal>
   );
 }
 

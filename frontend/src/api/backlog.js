@@ -26,9 +26,3 @@ export const deleteStep = (id)                 => api.delete(`/backlog/steps/${i
 
 // ─── Reordering ─────────────────────────────────────────────
 export const reorder = (data) => api.put('/backlog/reorder', data);
-
-// ─── Templates ──────────────────────────────────────────────
-export const getTemplates   = ()                   => api.get('/backlog/templates');
-export const createTemplate = (data)               => api.post('/backlog/templates', data);
-export const deleteTemplate = (id)                 => api.delete(`/backlog/templates/${id}`);
-export const applyTemplate  = (weekId, templateId) => api.post(`/backlog/weeks/${weekId}/apply-template`, { templateId });

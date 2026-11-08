@@ -17,10 +17,6 @@ import {
   reorder,
   getLeftovers,
   carryOver,
-  getTemplates,
-  createTemplate,
-  deleteTemplate,
-  applyTemplate,
 } from '../controllers/backlogController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -39,12 +35,6 @@ router.put('/weeks/:id', updateWeek);
 router.delete('/weeks/:id', deleteWeek);
 router.get('/weeks/:id/leftovers', getLeftovers);
 router.post('/weeks/:id/carry-over', carryOver);
-router.post('/weeks/:id/apply-template', applyTemplate);
-
-// ─── Templates ────────────────────────────────────────
-router.get('/templates', getTemplates);
-router.post('/templates', createTemplate);
-router.delete('/templates/:id', deleteTemplate);
 
 // ─── Sections (created nested under a week) ───────────
 router.post('/weeks/:weekId/sections', createSection);

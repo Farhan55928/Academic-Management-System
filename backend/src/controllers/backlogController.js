@@ -3,7 +3,6 @@ import BacklogSection from '../models/BacklogSection.js';
 import BacklogSubsection from '../models/BacklogSubsection.js';
 import BacklogStep from '../models/BacklogStep.js';
 import Course from '../models/Course.js';
-import BacklogTemplate from '../models/BacklogTemplate.js';
 
 // ─── Rollup helpers ─────────────────────────────────────────
 // Steps are the source of truth. Every mutation ends by calling into this chain,
@@ -179,18 +178,11 @@ export const createWeek = async (req, res) => {
       return res.status(400).json({ message: 'Week number and semester are required' });
     }
 
-    let template = null;
-    if (req.body.templateId) {
-      template = await BacklogTemplate.findOne({ _id: req.body.templateId, userId: req.user._id });
-      if (!template) return res.status(404).json({ message: 'Template not found' });
-    }
-
     const week = await BacklogWeek.create({
       userId: req.user._id,
       semester,
       weekNumber
     });
-    if (template) await stampTemplate(template, week, req.user._id);
     res.status(201).json(week);
   } catch (error) {
     if (error.code === 11000) {
@@ -659,130 +651,6 @@ export const carryOver = async (req, res) => {
     for (const id of touchedTargets) await recomputeSection(id);
 
     res.json({ moved: subs.length });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// ─── Templates ──────────────────────────────────────────────
-
-// Merge a template into a week: reuse a matching section (same course, else same
-// title), and skip subsections whose title already exists there so re-applying is safe.
-async function stampTemplate(template, week, userId) {
-  const existingSections = await BacklogSection.find({ weekId: week._id });
-  let sectionOrder = existingSections.length;
-  let added = 0;
-
-  for (const tSec of template.sections) {
-    let section = existingSections.find((s) =>
-      tSec.course ? s.course && s.course.toString() === tSec.course.toString() : !s.course && s.title === tSec.title
-    );
-    if (!section) {
-      section = await BacklogSection.create({
-        userId, weekId: week._id, title: tSec.title, course: tSec.course || null, order: sectionOrder++
-      });
-      existingSections.push(section);
-    }
-
-    const existingSubs = await BacklogSubsection.find({ sectionId: section._id });
-    const taken = new Set(existingSubs.map((s) => s.title.toLowerCase()));
-    let subOrder = existingSubs.length;
-
-    for (const tSub of tSec.subsections) {
-      if (taken.has(tSub.title.toLowerCase())) continue;
-      const sub = await BacklogSubsection.create({
-        userId, weekId: week._id, sectionId: section._id,
-        title: tSub.title, priority: tSub.priority, order: subOrder++
-      });
-      if (tSub.steps.length > 0) {
-        await BacklogStep.insertMany(tSub.steps.map((title, i) => ({
-          userId, weekId: week._id, sectionId: section._id, subsectionId: sub._id, title, order: i
-        })));
-      }
-      added += 1;
-    }
-    await recomputeSection(section._id);
-  }
-  await recomputeWeek(week._id);
-  return added;
-}
-
-// @desc   List the user's templates
-// @route  GET /api/backlog/templates
-export const getTemplates = async (req, res) => {
-  try {
-    const templates = await BacklogTemplate.find({ userId: req.user._id }).sort({ name: 1 });
-    res.json(templates);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc   Save a week's structure (titles, priorities, step names, no ticks) as a template
-// @route  POST /api/backlog/templates  { name, weekId }
-export const createTemplate = async (req, res) => {
-  try {
-    const { name, weekId } = req.body;
-    if (!name || !weekId) return res.status(400).json({ message: 'Name and week are required' });
-
-    const week = await BacklogWeek.findById(weekId);
-    if (!week || week.userId.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: 'Week not found' });
-    }
-
-    const [sections, subsections, steps] = await Promise.all([
-      BacklogSection.find({ weekId }).sort({ order: 1, createdAt: 1 }),
-      BacklogSubsection.find({ weekId }).sort({ order: 1, createdAt: 1 }),
-      BacklogStep.find({ weekId }).sort({ order: 1, createdAt: 1 })
-    ]);
-    if (sections.length === 0) return res.status(400).json({ message: 'This week is empty, nothing to save' });
-
-    const template = await BacklogTemplate.create({
-      userId: req.user._id,
-      name,
-      sections: sections.map((s) => ({
-        title: s.title,
-        course: s.course,
-        subsections: subsections
-          .filter((sub) => sub.sectionId.toString() === s._id.toString())
-          .map((sub) => ({
-            title: sub.title,
-            priority: sub.priority,
-            steps: steps.filter((st) => st.subsectionId.toString() === sub._id.toString()).map((st) => st.title)
-          }))
-      }))
-    });
-    res.status(201).json(template);
-  } catch (error) {
-    if (error.code === 11000) return res.status(400).json({ message: `A template named "${req.body.name}" already exists` });
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// @desc   Delete a template (weeks already stamped from it are untouched)
-// @route  DELETE /api/backlog/templates/:id
-export const deleteTemplate = async (req, res) => {
-  try {
-    const result = await BacklogTemplate.deleteOne({ _id: req.params.id, userId: req.user._id });
-    if (result.deletedCount === 0) return res.status(404).json({ message: 'Template not found' });
-    res.json({ message: 'Template removed' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc   Stamp a template onto an existing week
-// @route  POST /api/backlog/weeks/:id/apply-template  { templateId }
-export const applyTemplate = async (req, res) => {
-  try {
-    const week = await loadOwnedWeek(req);
-    if (!week) return res.status(404).json({ message: 'Week not found' });
-
-    const template = await BacklogTemplate.findOne({ _id: req.body.templateId, userId: req.user._id });
-    if (!template) return res.status(404).json({ message: 'Template not found' });
-
-    const added = await stampTemplate(template, week, req.user._id);
-    res.json({ added });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

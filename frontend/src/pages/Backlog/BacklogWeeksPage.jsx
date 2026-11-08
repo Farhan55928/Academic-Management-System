@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { MdAdd, MdChecklist, MdArrowForward, MdDelete, MdEdit, MdClose, MdCheck } from 'react-icons/md';
 import toast from 'react-hot-toast';
-import { getWeeks, createWeek, updateWeek, deleteWeek, getTemplates } from '../../api/backlog.js';
+import { getWeeks, createWeek, updateWeek, deleteWeek } from '../../api/backlog.js';
 import { getSemesters } from '../../api/semesters.js';
 import { errorMessage } from '../../api/errors.js';
 import { meterColor, gradientFor } from './backlogUtils.js';
@@ -16,7 +16,6 @@ export default function BacklogWeeksPage() {
   const [form,      setForm]      = useState({ weekNumber: 1, semester: '' });
   const [editId,    setEditId]    = useState(null);
   const [saving,    setSaving]    = useState(false);
-  const [templates, setTemplates] = useState([]);
   const navigate = useNavigate();
 
   const load = (semesterId) =>
@@ -54,11 +53,9 @@ export default function BacklogWeeksPage() {
   const openAdd = () => {
     const active = semesters.find(s => s.isActive);
     const next = weeks.length > 0 ? Math.max(...weeks.map(w => w.weekNumber)) + 1 : 1;
-    setForm({ weekNumber: next, semester: filter || active?._id || semesters[0]?._id || '', templateId: '' });
+    setForm({ weekNumber: next, semester: filter || active?._id || semesters[0]?._id || '' });
     setEditId(null);
     setModal(true);
-    // Templates are optional, so a failure here shouldn't block creating a week
-    getTemplates().then((r) => setTemplates(r.data)).catch(() => setTemplates([]));
   };
 
   const openEdit = (e, w) => {
@@ -78,7 +75,7 @@ export default function BacklogWeeksPage() {
         setModal(false);
         load(filter);
       } else {
-        const r = await createWeek({ ...form, templateId: form.templateId || undefined });
+        const r = await createWeek(form);
         toast.success('Week created');
         setModal(false);
         // The week page offers any leftovers from earlier weeks on arrival
@@ -296,26 +293,6 @@ export default function BacklogWeeksPage() {
                   ))}
                 </select>
               </div>
-
-              {!editId && templates.length > 0 && (
-                <>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', margin: '16px 0 6px' }}>
-                    Start from template
-                  </label>
-                  <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, overflow: 'hidden' }}>
-                    <select
-                      value={form.templateId}
-                      onChange={e => setForm(f => ({ ...f, templateId: e.target.value }))}
-                      style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 15, fontWeight: 600, outline: 'none', width: '100%', padding: '16px 18px' }}
-                    >
-                      <option value="" style={{ background: '#1a2f5e' }}>Empty week</option>
-                      {templates.map(t => (
-                        <option key={t._id} value={t._id} style={{ background: '#1a2f5e' }}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
             </div>
 
             <div className="m-sheet-footer" style={{ padding: '0 40px 36px', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
